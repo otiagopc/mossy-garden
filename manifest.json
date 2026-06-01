@@ -14,33 +14,5 @@
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
-  ],
-  "shortcuts": [
-    {
-      "name": "Calendário de Regas",
-      "short_name": "Calendário",
-      "description": "Ver o calendário de rega das plantas",
-      "url": "./index.html?view=calendario",
-      "icons": [
-        {
-          "src": "./icons/shortcut-calendar.svg",
-          "sizes": "any",
-          "type": "image/svg+xml"
-        }
-      ]
-    },
-    {
-      "name": "Nova Planta",
-      "short_name": "Nova Planta",
-      "description": "Cadastrar uma nova planta no jardim",
-      "url": "./index.html?action=add-plant",
-      "icons": [
-        {
-          "src": "./icons/shortcut-add.svg",
-          "sizes": "any",
-          "type": "image/svg+xml"
-        }
-      ]
-    }
   ]
 }

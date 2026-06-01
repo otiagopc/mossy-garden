@@ -5,9 +5,7 @@ const ASSETS = [
   './style.css',
   './app.js',
   './manifest.json',
-  './icons/icon.svg',
-  './icons/shortcut-calendar.svg',
-  './icons/shortcut-add.svg'
+  './icons/icon.svg'
 ];
 
 // Install Event - cache core assets

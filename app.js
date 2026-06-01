@@ -1423,21 +1423,11 @@
       const requestPerm = () => {
         Notification.requestPermission().then(() => {
           updateAppBadge();
-        });
-        document.removeEventListener('click', requestPerm);
-        document.removeEventListener('touchstart', requestPerm);
+        }).catch(err => console.warn('Permission request failed:', err));
       };
-      document.addEventListener('click', requestPerm, { passive: true });
-      document.addEventListener('touchstart', requestPerm, { passive: true });
+      document.addEventListener('click', requestPerm, { once: true });
     }
 
-    // Handle PWA shortcuts or query parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('view') === 'calendario') {
-      switchView('calendario');
-    } else if (urlParams.get('action') === 'add-plant') {
-      setTimeout(() => openModal(), 100);
-    }
   }
 
   // Boot app
