@@ -1,11 +1,12 @@
-const CACHE_NAME = 'mossy-garden-v1';
+const CACHE_NAME = 'mossy-garden-v3';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './app.js',
   './manifest.json',
-  './icons/icon.svg'
+  './icons/iconbranco.svg',
+  './icons/iconverde.svg'
 ];
 
 // Install Event - cache core assets
