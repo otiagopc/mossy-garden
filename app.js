@@ -27,19 +27,26 @@
     '🌲': 'Pinheiro',
     '🌳': 'Árvore Decídua',
     '🎋': 'Bambu',
+    '🎍': 'Decoração de Bambu',
     '🌾': 'Gramínea / Trigo',
     '🍀': 'Trevo de Quatro Folhas',
     '☘️': 'Trevo Comum',
     '🍃': 'Folha ao Vento',
     '🍁': 'Folha de Outono',
     '🍂': 'Folhas Secas',
+    '🪾': 'Ramo Seco',
     '🌸': 'Flor Geral',
     '🌻': 'Girassol',
     '🌹': 'Rosa / Florífera',
+    '🌼': 'Margarida',
+    '🌷': 'Tulipa',
+    '🪻': 'Jacinto',
+    '🪷': 'Flor de Lótus',
+    '💐': 'Buquê de Flores',
     '🍋': 'Frutífera Citrina',
     '🍓': 'Morangueiro / Frutífera',
     '🥬': 'Hortaliça / Folha Verde',
-    '🥦': 'Hortaliça / Brócolis',
+    '🥦': 'Hortaliça / Brócolis'
   };
 
   const MONTHS_PT = [
@@ -103,6 +110,8 @@
   let plants = [];
   let currentFilter = 'all';
   let currentSearch = '';
+  let currentSort = 'thirst';
+  let selectedRoomModal = 'Sala';
   let editingPlantId = null;
   let viewingPlantId = null;
   let lastWaterState = null; // QoL: Tracks last watered state for Undo action
@@ -121,13 +130,13 @@
   const roomFiltersContainer = $('#roomFilters');
   const searchInput = $('#searchInput');
 
-  // Stats
-  const statTotal = $('#statTotal');
-  const statThirsty = $('#statThirsty');
-  const statRooms = $('#statRooms');
-  const statThriving = $('#statThriving');
+  // Stats & Widgets
   const thrivingCircle = $('#thrivingCircle');
   const thrivingLabel = $('#thrivingLabel');
+  const sortDropdown = $('#sortDropdown');
+  const newRoomWrapper = $('#newRoomWrapper');
+  const newRoomInput = $('#newRoomInput');
+  const diaryTemplates = $('#diaryTemplates');
 
   // Modal Plant
   const plantModal = $('#plantModal');
@@ -138,7 +147,8 @@
   // Form fields
   const plantName = $('#plantName');
   const plantSpecies = $('#plantSpecies');
-  const plantRoom = $('#plantRoom');
+  const roomDropdown = $('#roomDropdown');
+  const roomDropdownMenu = $('#roomDropdownMenu');
   const plantFrequency = $('#plantFrequency');
   const freqValue = $('#freqValue');
   const plantPetSafe = $('#plantPetSafe'); // Reused for 'Tóxica para pets?'
@@ -447,47 +457,71 @@
   // ─── Render Stats ──────────────────────────────────────────
   function renderStats() {
     const total = plants.length;
-    const thirsty = plants.filter(p => getHydration(p) <= 20).length;
-    const roomsCount = new Set(plants.map(p => p.room)).size;
-
     const avgHydration = total > 0 
       ? Math.round(plants.reduce((sum, p) => sum + getHydration(p), 0) / total)
       : 0;
 
-    statTotal.textContent = total;
-    statThirsty.textContent = thirsty;
-    statRooms.textContent = roomsCount;
-    statThriving.textContent = `${avgHydration}%`;
-    thrivingLabel.textContent = `${avgHydration}%`;
+    if (thrivingLabel) {
+      thrivingLabel.textContent = `${avgHydration}%`;
+    }
 
-    const offset = 100 - avgHydration;
-    thrivingCircle.style.strokeDashoffset = offset;
-    thrivingCircle.style.stroke = getThirstColor(avgHydration);
+    if (thrivingCircle) {
+      const offset = 100 - avgHydration;
+      thrivingCircle.style.strokeDashoffset = offset;
+      thrivingCircle.style.stroke = getThirstColor(avgHydration);
+    }
   }
 
   // ─── Render Filters ────────────────────────────────────────
   function renderFilters() {
+    const thirstyCount = plants.filter(p => getHydration(p) <= 20).length;
+    if (currentFilter === 'thirsty' && thirstyCount === 0) {
+      currentFilter = 'all';
+    }
+
     const roomsList = [...new Set(plants.map(p => p.room))].sort();
     const existingBtns = roomFiltersContainer.querySelectorAll('.filter-btn:not([data-room="all"])');
     existingBtns.forEach(b => b.remove());
+
+    const roomCounts = {};
+    plants.forEach(p => {
+      roomCounts[p.room] = (roomCounts[p.room] || 0) + 1;
+    });
+
+    const allBtn = roomFiltersContainer.querySelector('[data-room="all"]');
+    if (allBtn) {
+      allBtn.className = `filter-btn${currentFilter === 'all' ? ' active' : ''}`;
+      allBtn.textContent = `Todas (${plants.length})`;
+    }
+
+    if (thirstyCount > 0) {
+      const thirstyBtn = document.createElement('button');
+      thirstyBtn.className = `filter-btn btn-thirsty${currentFilter === 'thirsty' ? ' active' : ''}`;
+      thirstyBtn.dataset.room = 'thirsty';
+      thirstyBtn.textContent = `💧 Sedentas (${thirstyCount})`;
+      if (allBtn) {
+        allBtn.after(thirstyBtn);
+      } else {
+        roomFiltersContainer.appendChild(thirstyBtn);
+      }
+    }
 
     roomsList.forEach(room => {
       const btn = document.createElement('button');
       btn.className = `filter-btn${currentFilter === room ? ' active' : ''}`;
       btn.dataset.room = room;
-      btn.textContent = room;
+      btn.textContent = `${room} (${roomCounts[room] || 0})`;
       roomFiltersContainer.appendChild(btn);
     });
-
-    const allBtn = roomFiltersContainer.querySelector('[data-room="all"]');
-    allBtn.className = `filter-btn${currentFilter === 'all' ? ' active' : ''}`;
   }
 
   // ─── Render Cards Grid ─────────────────────────────────────
   function renderPlants() {
     let filtered = plants;
 
-    if (currentFilter !== 'all') {
+    if (currentFilter === 'thirsty') {
+      filtered = filtered.filter(p => getHydration(p) <= 20);
+    } else if (currentFilter !== 'all') {
       filtered = filtered.filter(p => p.room === currentFilter);
     }
 
@@ -500,7 +534,16 @@
       );
     }
 
-    filtered.sort((a, b) => getHydration(a) - getHydration(b));
+    const sortVal = currentSort;
+    if (sortVal === 'thirst') {
+      filtered.sort((a, b) => getHydration(a) - getHydration(b));
+    } else if (sortVal === 'name') {
+      filtered.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+    } else if (sortVal === 'recent') {
+      filtered.sort((a, b) => plants.indexOf(b) - plants.indexOf(a));
+    } else if (sortVal === 'freq') {
+      filtered.sort((a, b) => a.frequency - b.frequency);
+    }
 
     plantsGrid.innerHTML = '';
 
@@ -778,8 +821,69 @@
     });
   }
 
+  function populateRoomDropdown() {
+    const defaultRooms = ['Sala', 'Quarto', 'Cozinha', 'Varanda', 'Banheiro', 'Jardim'];
+    const customRooms = plants.map(p => p.room).filter(r => !defaultRooms.includes(r));
+    const allRooms = [...defaultRooms, ...new Set(customRooms)];
+    
+    if (!roomDropdownMenu) return;
+    roomDropdownMenu.innerHTML = '';
+    
+    const icons = {
+      'Sala': '🛋️',
+      'Quarto': '🛏️',
+      'Cozinha': '🍳',
+      'Varanda': '🌅',
+      'Banheiro': '🚿',
+      'Jardim': '🌳'
+    };
+    
+    allRooms.forEach(room => {
+      const item = document.createElement('div');
+      item.className = 'dropdown-item';
+      item.dataset.value = room;
+      const icon = icons[room] || '🏠';
+      item.textContent = `${icon} ${room}`;
+      roomDropdownMenu.appendChild(item);
+    });
+    
+    const itemNew = document.createElement('div');
+    itemNew.className = 'dropdown-item btn-add-custom-room';
+    itemNew.dataset.value = 'new-room';
+    itemNew.textContent = '＋ Adicionar Cômodo...';
+    roomDropdownMenu.appendChild(itemNew);
+  }
+
+  function setModalSelectedRoom(roomName) {
+    selectedRoomModal = roomName;
+    if (!roomDropdown) return;
+    
+    const trigger = roomDropdown.querySelector('.dropdown-trigger');
+    const label = trigger.querySelector('.selected-value');
+    
+    const icons = {
+      'Sala': '🛋️',
+      'Quarto': '🛏️',
+      'Cozinha': '🍳',
+      'Varanda': '🌅',
+      'Banheiro': '🚿',
+      'Jardim': '🌳'
+    };
+    const icon = icons[roomName] || '🏠';
+    
+    label.textContent = roomName === 'new-room' ? '＋ Adicionar Cômodo...' : `${icon} ${roomName}`;
+    
+    if (roomDropdownMenu) {
+      roomDropdownMenu.querySelectorAll('.dropdown-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.value === roomName);
+      });
+    }
+  }
+
   function openModal(plantId = null) {
     editingPlantId = plantId;
+    populateRoomDropdown();
+    if (newRoomWrapper) newRoomWrapper.classList.add('hidden');
     resetForm();
 
     if (plantId) {
@@ -792,7 +896,7 @@
 
       plantName.value = plant.name;
       plantSpecies.value = plant.species || '';
-      plantRoom.value = plant.room;
+      setModalSelectedRoom(plant.room);
       plantFrequency.value = plant.frequency;
       freqValue.textContent = `${plant.frequency} dias`;
       plantPetSafe.checked = plant.petToxic || false;
@@ -804,6 +908,7 @@
       modalTitle.textContent = 'Nova Planta';
       $('#btnSaveModal').textContent = '🌱 Salvar Planta';
       deleteSection.classList.add('hidden');
+      setModalSelectedRoom('Sala');
     }
 
     plantModal.classList.add('active');
@@ -855,13 +960,24 @@
       return;
     }
 
+    let room = selectedRoomModal;
+    if (room === 'new-room') {
+      const customRoomName = newRoomInput.value.trim();
+      if (!customRoomName) {
+        newRoomInput.focus();
+        showToast('Digite o nome do novo ambiente! 🏠', 'info');
+        return;
+      }
+      room = customRoomName;
+    }
+
     if (editingPlantId) {
       const plant = plants.find(p => p.id === editingPlantId);
       if (!plant) return;
 
       plant.name = name;
       plant.species = plantSpecies.value.trim();
-      plant.room = plantRoom.value;
+      plant.room = room;
       plant.frequency = parseInt(plantFrequency.value);
       plant.sunlight = getSelectedSun();
       plant.petToxic = plantPetSafe.checked;
@@ -874,7 +990,7 @@
         id: generateId(),
         name: name,
         species: plantSpecies.value.trim(),
-        room: plantRoom.value,
+        room: room,
         frequency: parseInt(plantFrequency.value),
         lastWatered: Date.now(),
         sunlight: getSelectedSun(),
@@ -1087,11 +1203,91 @@
       freqValue.textContent = `${plantFrequency.value} dias`;
     });
 
+    // Custom Dropdown sorting
+    if (sortDropdown) {
+      const trigger = sortDropdown.querySelector('.dropdown-trigger');
+      const label = trigger.querySelector('.selected-value');
+      
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sortDropdown.classList.toggle('open');
+      });
+
+      sortDropdown.addEventListener('click', (e) => {
+        const item = e.target.closest('.dropdown-item');
+        if (!item) return;
+        
+        const val = item.dataset.value;
+        currentSort = val;
+
+        sortDropdown.querySelectorAll('.dropdown-item').forEach(el => el.classList.remove('active'));
+        item.classList.add('active');
+
+        label.textContent = item.textContent;
+        sortDropdown.classList.remove('open');
+        renderPlants();
+      });
+
+      document.addEventListener('click', () => {
+        sortDropdown.classList.remove('open');
+      });
+    }
+
+    // Custom Dropdown room selection
+    if (roomDropdown) {
+      const trigger = roomDropdown.querySelector('.dropdown-trigger');
+      
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        roomDropdown.classList.toggle('open');
+      });
+
+      roomDropdown.addEventListener('click', (e) => {
+        const item = e.target.closest('.dropdown-item');
+        if (!item) return;
+        
+        const val = item.dataset.value;
+        if (val === 'new-room') {
+          newRoomWrapper.classList.remove('hidden');
+          newRoomInput.value = '';
+          newRoomInput.focus();
+          setModalSelectedRoom('new-room');
+        } else {
+          newRoomWrapper.classList.add('hidden');
+          setModalSelectedRoom(val);
+        }
+        
+        roomDropdown.classList.remove('open');
+      });
+
+      document.addEventListener('click', () => {
+        roomDropdown.classList.remove('open');
+      });
+    }
+
+    // Diary Templates click
+    if (diaryTemplates) {
+      diaryTemplates.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-template');
+        if (!btn) return;
+        diaryInput.value = btn.dataset.text;
+        diaryInput.focus();
+      });
+    }
+
     // Light options
     sunOptions.addEventListener('click', (e) => {
       const btn = e.target.closest('.sun-option');
       if (!btn) return;
       $$('#sunOptions .sun-option').forEach(o => o.classList.remove('active'));
+      btn.classList.add('active');
+    });
+
+    // Avatar Picker selection click
+    avatarPicker.addEventListener('click', (e) => {
+      const btn = e.target.closest('.avatar-option');
+      if (!btn) return;
+      $$('#avatarPicker .avatar-option').forEach(o => o.classList.remove('active'));
       btn.classList.add('active');
     });
 
@@ -1198,10 +1394,6 @@
     
     renderAll();
 
-    // Auto-refresh hydration values and calendar displays
-    setInterval(() => {
-      renderAll();
-    }, 60000);
   }
 
   // Boot app

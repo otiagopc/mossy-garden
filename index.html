@@ -20,6 +20,15 @@
       </div>
     </a>
     <div class="header-actions">
+      <!-- Vitality Widget -->
+      <div class="header-vitality" id="headerVitality" title="Vitalidade Geral do Jardim">
+        <svg class="vitality-svg" viewBox="0 0 36 36">
+          <circle class="track" cx="18" cy="18" r="15.9"></circle>
+          <circle class="fill" cx="18" cy="18" r="15.9" stroke-dasharray="100" stroke-dashoffset="0" id="thrivingCircle"></circle>
+        </svg>
+        <span class="vitality-text" id="thrivingLabel">0%</span>
+        <span class="vitality-desc">Vitalidade</span>
+      </div>
       <button class="btn-icon" id="btnThemeToggle" aria-label="Alternar tema" title="Alternar tema">
         🌙
       </button>
@@ -29,47 +38,7 @@
   <!-- ===== MAIN ===== -->
   <main class="app-container">
 
-    <!-- Stats Bar -->
-    <section class="stats-bar" id="statsBar">
-      <div class="stat-card">
-        <div class="thriving-meter" id="thrivingMeter">
-          <svg viewBox="0 0 36 36">
-            <circle class="track" cx="18" cy="18" r="15.9"></circle>
-            <circle class="fill" cx="18" cy="18" r="15.9"
-              stroke-dasharray="100" stroke-dashoffset="25" id="thrivingCircle"></circle>
-          </svg>
-          <span class="meter-label" id="thrivingLabel">75%</span>
-        </div>
-        <div class="stat-info">
-          <span class="stat-value" id="statThriving">—</span>
-          <span class="stat-label">Vitalidade</span>
-        </div>
-      </div>
 
-      <div class="stat-card">
-        <div class="stat-icon green">🌱</div>
-        <div class="stat-info">
-          <span class="stat-value" id="statTotal">0</span>
-          <span class="stat-label">Plantas</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon orange">💧</div>
-        <div class="stat-info">
-          <span class="stat-value" id="statThirsty">0</span>
-          <span class="stat-label">Precisam de Água</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon blue">🏠</div>
-        <div class="stat-info">
-          <span class="stat-value" id="statRooms">0</span>
-          <span class="stat-label">Ambientes</span>
-        </div>
-      </div>
-    </section>
 
     <!-- View Switcher -->
     <div class="view-switcher" id="viewSwitcher">
@@ -85,6 +54,19 @@
           <button class="filter-btn active" data-room="all">Todas</button>
         </div>
         <div class="toolbar-right">
+          <div class="custom-dropdown" id="sortDropdown">
+            <button class="dropdown-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+              <span class="sort-icon">🔀</span>
+              <span class="selected-value">Mais sedentas</span>
+              <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="dropdown-menu">
+              <div class="dropdown-item active" data-value="thirst">Mais sedentas</div>
+              <div class="dropdown-item" data-value="name">Nome (A-Z)</div>
+              <div class="dropdown-item" data-value="recent">Mais recentes</div>
+              <div class="dropdown-item" data-value="freq">Frequência de rega</div>
+            </div>
+          </div>
           <div class="search-wrapper">
             <span class="search-icon">🔍</span>
             <input type="text" id="searchInput" placeholder="Buscar planta..." aria-label="Buscar planta">
@@ -126,7 +108,7 @@
     <div class="empty-state hidden" id="emptyState">
       <div class="empty-state-icon">🌵</div>
       <h3>Seu jardim ainda está vazio</h3>
-      <p>Adicione sua primeira planta e comece a cuidar do seu garden!</p>
+      <p>Adicione sua primeira planta e comece a cuidar do seu jardim!</p>
       <button class="btn-primary" id="btnAddPlantEmpty">
         <span>＋</span> Adicionar Planta
       </button>
@@ -176,15 +158,19 @@
 
           <!-- Room -->
           <div class="form-group">
-            <label for="plantRoom">Ambiente</label>
-            <select id="plantRoom">
-              <option value="Sala">🛋️ Sala</option>
-              <option value="Quarto">🛏️ Quarto</option>
-              <option value="Cozinha">🍳 Cozinha</option>
-              <option value="Varanda">🌅 Varanda</option>
-              <option value="Banheiro">🚿 Banheiro</option>
-              <option value="Jardim">🌳 Jardim</option>
-            </select>
+            <label>Ambiente</label>
+            <div class="custom-dropdown" id="roomDropdown">
+              <button class="dropdown-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+                <span class="selected-value">🛋️ Sala</span>
+                <span class="dropdown-arrow">▼</span>
+              </button>
+              <div class="dropdown-menu" id="roomDropdownMenu">
+                <!-- Rendered dynamically by JS -->
+              </div>
+            </div>
+            <div class="new-room-wrapper hidden" id="newRoomWrapper">
+              <input type="text" id="newRoomInput" placeholder="Nome do novo cômodo...">
+            </div>
           </div>
 
           <!-- Watering Frequency Slider -->
@@ -279,6 +265,11 @@
           <h3>📔 Diário</h3>
           <div class="diary-entry-form">
             <textarea id="diaryInput" placeholder="Nova anotação no diário..."></textarea>
+            <div class="diary-templates" id="diaryTemplates">
+              <button type="button" class="btn-template" data-text="🌱 Nova folhagem!">🌱 Broto</button>
+              <button type="button" class="btn-template" data-text="✂️ Poda realizada">✂️ Poda</button>
+              <button type="button" class="btn-template" data-text="🏺 Reenvasada">🏺 Vaso</button>
+            </div>
             <button type="button" class="btn-primary" id="btnAddDiary">📝 Adicionar</button>
           </div>
           <div class="diary-timeline" id="diaryTimeline">
