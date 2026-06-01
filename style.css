@@ -260,7 +260,6 @@ body::after {
   padding-left: 0;
   padding-right: 0;
   padding-bottom: 0;
-  min-height: auto;
 }
 
 .app-container:has(#calendarView:not(.hidden)) .calendar-view {
@@ -2178,7 +2177,6 @@ input[type="range"]::-moz-range-thumb {
     padding-left: 24px;
     padding-right: 24px;
     padding-bottom: 30px;
-    min-height: calc(100vh - var(--header-height));
   }
 
   .app-container:has(#calendarView:not(.hidden)) .calendar-view {
