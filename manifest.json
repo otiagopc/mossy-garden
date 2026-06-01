@@ -1,0 +1,46 @@
+{
+  "name": "Mossy Garden",
+  "short_name": "Mossy Garden",
+  "description": "Seu diário de plantas pessoal. Monitore regas, acompanhe o crescimento e cuide das suas plantas com carinho.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#4e6b52",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Calendário de Regas",
+      "short_name": "Calendário",
+      "description": "Ver o calendário de rega das plantas",
+      "url": "./index.html?view=calendario",
+      "icons": [
+        {
+          "src": "./icons/shortcut-calendar.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Nova Planta",
+      "short_name": "Nova Planta",
+      "description": "Cadastrar uma nova planta no jardim",
+      "url": "./index.html?action=add-plant",
+      "icons": [
+        {
+          "src": "./icons/shortcut-add.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}

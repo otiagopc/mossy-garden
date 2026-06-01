@@ -263,10 +263,22 @@
            d1.getDate() === d2.getDate();
   }
 
+  function updateAppBadge() {
+    if ('setAppBadge' in navigator) {
+      const count = plants.filter(p => getHydration(p) <= 20).length;
+      if (count > 0) {
+        navigator.setAppBadge(count).catch(err => console.warn('Error setting app badge:', err));
+      } else {
+        navigator.clearAppBadge().catch(err => console.warn('Error clearing app badge:', err));
+      }
+    }
+  }
+
   // ─── Persistence ───────────────────────────────────────────
   function savePlants() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(plants));
+      updateAppBadge();
     } catch (e) {
       console.warn('Could not save to localStorage', e);
     }
@@ -1394,6 +1406,25 @@
     
     renderAll();
 
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Service Worker registered:', reg.scope))
+          .catch(err => console.warn('Service Worker registration failed:', err));
+      });
+    }
+
+    // Set initial app badge
+    updateAppBadge();
+
+    // Handle PWA shortcuts or query parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('view') === 'calendario') {
+      switchView('calendario');
+    } else if (urlParams.get('action') === 'add-plant') {
+      setTimeout(() => openModal(), 100);
+    }
   }
 
   // Boot app
