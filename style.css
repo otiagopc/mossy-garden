@@ -106,13 +106,22 @@ body {
 }
 
 /* ---------- Scrollbar ---------- */
-:not(.calendar-plant-items)::-webkit-scrollbar { width: 8px; }
-:not(.calendar-plant-items)::-webkit-scrollbar-track { background: transparent; }
-:not(.calendar-plant-items)::-webkit-scrollbar-thumb {
-  background: var(--accent-sage);
-  border-radius: 10px;
+/* Barra customizada apenas nos cards do calendário, em tablet/desktop */
+@media (min-width: 768px) {
+  .calendar-plant-items::-webkit-scrollbar { 
+    width: 6px; 
+  }
+  .calendar-plant-items::-webkit-scrollbar-track { 
+    background: transparent; 
+  }
+  .calendar-plant-items::-webkit-scrollbar-thumb {
+    background: var(--accent-sage);
+    border-radius: 10px;
+  }
+  .calendar-plant-items::-webkit-scrollbar-thumb:hover { 
+    background: var(--accent-green); 
+  }
 }
-:not(.calendar-plant-items)::-webkit-scrollbar-thumb:hover { background: var(--accent-green); }
 
 /* ---------- Decorative Background ---------- */
 body::before {
@@ -260,17 +269,7 @@ body::after {
 }
 
 .app-container:has(#calendarView:not(.hidden)) .app-footer-bar {
-  margin-top: 0;
-  padding-top: 0;
-  border-top: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-grow: 1;
-}
-
-.app-container:has(#calendarView:not(.hidden)) .footer-actions {
-  margin-bottom: 0;
+  display: none;
 }
 
 /* ============================================================
@@ -1862,10 +1861,12 @@ input[type="range"]::-moz-range-thumb {
   pointer-events: none;
 }
 
-.calendar-day:not(.empty):hover {
-  background: var(--bg-card-solid);
-  border-color: var(--border-color-strong);
-  box-shadow: var(--shadow-sm);
+@media (hover: hover) {
+  .calendar-day:not(.empty):hover {
+    background: var(--bg-card-solid);
+    border-color: var(--border-color-strong);
+    box-shadow: var(--shadow-sm);
+  }
 }
 
 .calendar-day-num {
@@ -1909,8 +1910,10 @@ input[type="range"]::-moz-range-thumb {
   transition: transform var(--transition-fast);
 }
 
-.calendar-plant-badge:hover {
-  transform: scale(1.05);
+@media (hover: hover) {
+  .calendar-plant-badge:hover {
+    transform: scale(1.05);
+  }
 }
 
 .calendar-plant-badge.watered {
@@ -2182,17 +2185,7 @@ input[type="range"]::-moz-range-thumb {
     border-right: 1px solid var(--border-color);
   }
 
-  .app-container:has(#calendarView:not(.hidden)) .app-footer-bar {
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid var(--border-color);
-    display: block;
-    flex-grow: 0;
-  }
 
-  .app-container:has(#calendarView:not(.hidden)) .footer-actions {
-    margin-bottom: 10px;
-  }
 }
 
 @media (min-width: 1024px) {
