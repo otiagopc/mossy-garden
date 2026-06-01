@@ -1418,6 +1418,19 @@
     // Set initial app badge
     updateAppBadge();
 
+    // Prompt for notification permission on first user interaction to enable App Badging on iOS
+    if ('Notification' in window && Notification.permission === 'default') {
+      const requestPerm = () => {
+        Notification.requestPermission().then(() => {
+          updateAppBadge();
+        });
+        document.removeEventListener('click', requestPerm);
+        document.removeEventListener('touchstart', requestPerm);
+      };
+      document.addEventListener('click', requestPerm, { passive: true });
+      document.addEventListener('touchstart', requestPerm, { passive: true });
+    }
+
     // Handle PWA shortcuts or query parameters
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('view') === 'calendario') {
