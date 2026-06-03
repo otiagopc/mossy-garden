@@ -1,12 +1,7 @@
-/* ============================================================
-   MOSSY GARDEN — app.js
-   State Management, Plant Logic, UI Rendering & Care History
-   ============================================================ */
-
 (function () {
   'use strict';
 
-  // ─── Constants ──────────────────────────────────────────────
+  // constantes
   const STORAGE_KEY = 'mossy_garden_plants';
   const THEME_KEY = 'mossy_garden_theme';
   const MS_PER_DAY = 86400000;
@@ -54,7 +49,16 @@
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
   ];
 
-  // ─── Seed Data ──────────────────────────────────────────────
+  const ROOM_ICONS = {
+    'Sala': '🛋️',
+    'Quarto': '🛏️',
+    'Cozinha': '🍳',
+    'Varanda': '🌅',
+    'Banheiro': '🚿',
+    'Jardim': '🌳'
+  };
+
+  // dados iniciais de exemplo
   const SEED_PLANTS = [
     {
       id: generateId(),
@@ -105,22 +109,18 @@
     }
   ];
 
-  // ─── State ──────────────────────────────────────────────────
-  // State
+  // controle de estado interno
   let plants = [];
   let currentFilter = 'all';
   let currentSearch = '';
   let currentSort = 'thirst';
-  let selectedRoomModal = 'Sala';
   let editingPlantId = null;
   let viewingPlantId = null;
-  let lastWaterState = null; // QoL: Tracks last watered state for Undo action
+  let lastWaterState = null;
+  let currentView = 'estufa';
+  let calendarDate = new Date();
 
-  // View States
-  let currentView = 'estufa'; // 'estufa' | 'calendario'
-  let calendarDate = new Date(); // Date tracking for calendar
-
-  // ─── DOM Elements ───────────────────────────────────────────
+  // atalhos para pegar elementos do dom
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => document.querySelectorAll(sel);
 
@@ -130,38 +130,29 @@
   const roomFiltersContainer = $('#roomFilters');
   const searchInput = $('#searchInput');
 
-  // Stats & Widgets
   const thrivingCircle = $('#thrivingCircle');
   const thrivingLabel = $('#thrivingLabel');
-  const sortDropdown = $('#sortDropdown');
-  const newRoomWrapper = $('#newRoomWrapper');
-  const newRoomInput = $('#newRoomInput');
-  const diaryTemplates = $('#diaryTemplates');
+  const sortSelect = $('#sortSelect');
 
-  // Modal Plant
   const plantModal = $('#plantModal');
   const modalTitle = $('#modalTitle');
   const plantForm = $('#plantForm');
   const deleteSection = $('#deleteSection');
 
-  // Form fields
   const plantName = $('#plantName');
   const plantSpecies = $('#plantSpecies');
-  const roomDropdown = $('#roomDropdown');
-  const roomDropdownMenu = $('#roomDropdownMenu');
+  const plantRoom = $('#plantRoom');
   const plantFrequency = $('#plantFrequency');
   const freqValue = $('#freqValue');
-  const plantPetSafe = $('#plantPetSafe'); // Reused for 'Tóxica para pets?'
+  const plantPetSafe = $('#plantPetSafe');
   const plantNotes = $('#plantNotes');
   const avatarPicker = $('#avatarPicker');
   const sunOptions = $('#sunOptions');
 
-  // Calendar View
   const calendarView = $('#calendarView');
   const calendarMonthYear = $('#calendarMonthYear');
   const calendarGrid = $('#calendarGrid');
 
-  // Drawer
   const detailDrawer = $('#detailDrawer');
   const drawerTitle = $('#drawerTitle');
   const drawerAvatar = $('#drawerAvatar');
@@ -175,20 +166,17 @@
   const drawerNotes = $('#drawerNotes');
   const drawerNotesSection = $('#drawerNotesSection');
   const diaryTimeline = $('#diaryTimeline');
-  const diaryEmpty = $('#diaryEmpty');
   const diaryInput = $('#diaryInput');
 
-  // Theme action in header
   const btnThemeToggle = $('#btnThemeToggle');
-
-  // Toast
   const toastContainer = $('#toastContainer');
 
-  // ─── Helpers ────────────────────────────────────────────────
+  // gera um id aleatorio
   function generateId() {
     return '_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
   }
 
+  // limpa caracteres especiais das strings
   function escapeHTML(str) {
     if (!str) return '';
     return str
@@ -199,11 +187,13 @@
       .replace(/'/g, '&#039;');
   }
 
+  // formata a data no padrao brasileiro
   function formatDate(ts) {
     const d = new Date(ts);
     return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
+  // calcula quantos dias atras foi a rega
   function daysAgo(ts) {
     const diff = Date.now() - ts;
     const days = Math.floor(diff / MS_PER_DAY);
@@ -212,6 +202,7 @@
     return `${days} dias atrás`;
   }
 
+  // calcula quantos dias faltam para a proxima rega
   function daysUntil(ts) {
     const diff = ts - Date.now();
     const days = Math.ceil(diff / MS_PER_DAY);
@@ -220,6 +211,7 @@
     return `Em ${days} dias`;
   }
 
+  // calcula a porcentagem de agua da planta
   function getHydration(plant) {
     const elapsed = Date.now() - plant.lastWatered;
     const cycle = plant.frequency * MS_PER_DAY;
@@ -227,63 +219,51 @@
     return Math.round(pct);
   }
 
+  // ve se a planta ja passou da data de regar
   function isOverdue(plant) {
     return getHydration(plant) <= 0;
   }
 
+  // pega a proxima data esperada de rega
   function getNextWaterDate(plant) {
     return plant.lastWatered + plant.frequency * MS_PER_DAY;
   }
 
+  // muda de cor conforme a sede da planta usando hsl
   function getThirstColor(hydration) {
-    if (hydration >= 60) {
-      const t = (hydration - 60) / 40;
-      const r = Math.round(120 + (78 - 120) * t);
-      const g = Math.round(160 + (170 - 160) * t);
-      const b = Math.round(60 + (80 - 60) * t);
-      return `rgb(${r}, ${g}, ${b})`;
-    } else if (hydration >= 25) {
-      const t = (hydration - 25) / 35;
-      const r = Math.round(210 + (120 - 210) * t);
-      const g = Math.round(140 + (160 - 140) * t);
-      const b = Math.round(60);
-      return `rgb(${r}, ${g}, ${b})`;
-    } else {
-      const t = hydration / 25;
-      const r = Math.round(200 + (210 - 200) * t);
-      const g = Math.round(70 + (140 - 70) * t);
-      const b = Math.round(50 + (60 - 50) * t);
-      return `rgb(${r}, ${g}, ${b})`;
-    }
+    return `hsl(${hydration * 1.2}, 55%, 45%)`;
   }
 
+  // ve se duas datas sao do mesmo dia
   function isSameDay(d1, d2) {
     return d1.getFullYear() === d2.getFullYear() &&
            d1.getMonth() === d2.getMonth() &&
            d1.getDate() === d2.getDate();
   }
 
+  // muda o icone do app com o numero de plantas com sede
   function updateAppBadge() {
     if ('setAppBadge' in navigator) {
       const count = plants.filter(p => getHydration(p) <= 20).length;
       if (count > 0) {
-        navigator.setAppBadge(count).catch(err => console.warn('Error setting app badge:', err));
+        navigator.setAppBadge(count).catch(err => console.warn('erro ao definir bolinha de aviso:', err));
       } else {
-        navigator.clearAppBadge().catch(err => console.warn('Error clearing app badge:', err));
+        navigator.clearAppBadge().catch(err => console.warn('erro ao limpar bolinha de aviso:', err));
       }
     }
   }
 
-  // ─── Persistence ───────────────────────────────────────────
+  // guarda as plantas no local storage
   function savePlants() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(plants));
       updateAppBadge();
     } catch (e) {
-      console.warn('Could not save to localStorage', e);
+      console.warn('erro ao salvar dados localmente', e);
     }
   }
 
+  // carrega as plantas do local storage
   function loadPlants() {
     try {
       const data = localStorage.getItem(STORAGE_KEY);
@@ -292,61 +272,44 @@
         return true;
       }
     } catch (e) {
-      console.warn('Could not load from localStorage', e);
+      console.warn('erro ao ler dados salvos', e);
     }
     return false;
   }
 
-  // ─── Theme Management ──────────────────────────────────────
-  function initTheme() {
-    const saved = localStorage.getItem(THEME_KEY) || 'light';
-    setTheme(saved);
-  }
-
+  // aplica o tema do app e salva
   function setTheme(theme) {
-    if (theme !== 'light' && theme !== 'dark') {
-      theme = 'light';
-    }
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem(THEME_KEY, theme);
-    btnThemeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+    const activeTheme = (theme === 'light' || theme === 'dark') ? theme : 'light';
+    document.documentElement.setAttribute('data-theme', activeTheme);
+    localStorage.setItem(THEME_KEY, activeTheme);
+    btnThemeToggle.textContent = activeTheme === 'dark' ? '☀️' : '🌙';
   }
 
+  // inverte o tema entre claro e escuro
   function toggleTheme() {
-    const current = document.documentElement.getAttribute('data-theme');
-    const next = current === 'dark' ? 'light' : 'dark';
-    setTheme(next);
+    setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
   }
 
-  // ─── Toast ──────────────────────────────────────────────────
-  function showToast(message, type = 'success') {
+  // cria um aviso na tela com botao de desfazer se precisar
+  function showToast(message, type = 'success', undoPlantId = null) {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    toast.innerHTML = `<span>${type === 'success' ? '✅' : 'ℹ️'}</span><span>${message}</span>`;
-    toastContainer.appendChild(toast);
-    setTimeout(() => {
-      toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateX(30px)';
-      setTimeout(() => toast.remove(), 300);
-    }, 3000);
-  }
-
-  function showToastWithUndo(message, plantId) {
-    const toast = document.createElement('div');
-    toast.className = 'toast success';
-    toast.innerHTML = `
-      <span>✅</span>
-      <span>${message}</span>
-      <button class="toast-undo-btn" id="btnUndoWater">Desfazer</button>
-    `;
+    
+    let content = `<span>${type === 'success' ? '✅' : 'ℹ️'}</span><span>${message}</span>`;
+    if (undoPlantId) {
+      content += `<button class="toast-undo-btn" id="btnUndoWater">Desfazer</button>`;
+    }
+    toast.innerHTML = content;
     toastContainer.appendChild(toast);
 
-    toast.querySelector('#btnUndoWater').addEventListener('click', () => {
-      undoWatering();
-      toast.remove();
-    });
+    if (undoPlantId) {
+      toast.querySelector('#btnUndoWater').addEventListener('click', () => {
+        undoWatering();
+        toast.remove();
+      });
+    }
 
+    const duration = undoPlantId ? 5000 : 3000;
     setTimeout(() => {
       if (toast.parentNode) {
         toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
@@ -354,18 +317,17 @@
         toast.style.transform = 'translateX(30px)';
         setTimeout(() => toast.remove(), 300);
       }
-    }, 5000); // 5 seconds display for QoL undo window
+    }, duration);
   }
 
+  // desfaz a ultima acao de regar
   function undoWatering() {
     if (!lastWaterState) return;
     const plant = plants.find(p => p.id === lastWaterState.plantId);
     if (!plant) return;
 
-    // Restore date
     plant.lastWatered = lastWaterState.lastWatered;
 
-    // Remove the last watering entry from diary (first one in unshift)
     if (plant.diary && plant.diary.length > 0 && plant.diary[0].type === 'watering') {
       plant.diary.shift();
     }
@@ -380,7 +342,7 @@
     }
   }
 
-  // ─── Leaf Confetti Generator ────────────────────────────────
+  // joga confete de folhas na tela
   function triggerConfetti(x, y) {
     const particles = ['🍃', '🍂', '🍁', '☘️', '🍀', '🌱', '🌿', '🟢', '❇️'];
     const count = 25;
@@ -416,7 +378,7 @@
     setTimeout(() => container.remove(), 2000);
   }
 
-  // ─── Backup & Restore ───────────────────────────────────────
+  // baixa o arquivo de backup das plantas
   function exportBackup() {
     try {
       const dataStr = JSON.stringify(plants, null, 2);
@@ -432,6 +394,7 @@
     }
   }
 
+  // le o arquivo de backup e carrega no app
   function importBackup(e) {
     const file = e.target.files[0];
     if (!file) return;
@@ -463,10 +426,10 @@
       }
     };
     reader.readAsText(file);
-    e.target.value = ''; // Reset file input
+    e.target.value = '';
   }
 
-  // ─── Render Stats ──────────────────────────────────────────
+  // mostra a vitalidade media do jardim
   function renderStats() {
     const total = plants.length;
     const avgHydration = total > 0 
@@ -484,7 +447,7 @@
     }
   }
 
-  // ─── Render Filters ────────────────────────────────────────
+  // desenha os filtros de ambiente na barra
   function renderFilters() {
     const thirstyCount = plants.filter(p => getHydration(p) <= 20).length;
     if (currentFilter === 'thirsty' && thirstyCount === 0) {
@@ -527,7 +490,7 @@
     });
   }
 
-  // ─── Render Cards Grid ─────────────────────────────────────
+  // monta e renderiza os cards das plantas
   function renderPlants() {
     let filtered = plants;
 
@@ -635,12 +598,11 @@
     });
   }
 
-  // ─── Water Action ──────────────────────────────────────────
+  // acao de regar e salvar no historico
   function waterPlant(id, event = null) {
     const plant = plants.find(p => p.id === id);
     if (!plant) return;
 
-    // Save previous state for undoing
     lastWaterState = {
       plantId: plant.id,
       lastWatered: plant.lastWatered
@@ -663,7 +625,6 @@
       setTimeout(() => card.classList.remove('just-watered'), 700);
     }
 
-    // Default Confetti explosion
     let clickX = window.innerWidth / 2;
     let clickY = window.innerHeight / 2;
     if (event && event.clientX) {
@@ -677,13 +638,14 @@
     triggerConfetti(clickX, clickY);
 
     renderAll();
-    showToastWithUndo(`${plant.name} foi regada! 💧🌿`, plant.id);
+    showToast(`${plant.name} foi regada! 💧🌿`, 'success', plant.id);
 
     if (viewingPlantId === id) {
       openDrawer(id);
     }
   }
 
+  // desenha o splash de gotas na rega
   function createWaterSplash(card) {
     const rect = card.getBoundingClientRect();
     const container = document.createElement('div');
@@ -709,22 +671,19 @@
     setTimeout(() => container.remove(), 800);
   }
 
-  // ─── Monthly Calendar Renderer ─────────────────────────────
+  // ve se a planta precisa de rega no dia do calendario
   function getWateringStatusForDate(plant, dateObj) {
     const targetYear = dateObj.getFullYear();
     const targetMonth = dateObj.getMonth();
     const targetDate = dateObj.getDate();
 
-    // Check next watering dates
     const nextWater = getNextWaterDate(plant);
     const nextWaterDate = new Date(nextWater);
 
-    // If target day is same day as last watered, it is 'watered'
     if (isSameDay(dateObj, new Date(plant.lastWatered))) {
       return { type: 'watered', label: `${plant.avatar} ${plant.name}` };
     }
 
-    // If target day is same day as next scheduled water
     if (isSameDay(dateObj, nextWaterDate)) {
       const isToday = isSameDay(dateObj, new Date());
       const isPast = nextWater < Date.now() && !isToday;
@@ -734,9 +693,7 @@
       return { type: isPast ? 'due' : 'upcoming', label: `${plant.avatar} ${plant.name}` };
     }
 
-    // Check future occurrences (n > 1)
     if (dateObj.getTime() > nextWater) {
-      // Calculate how many days after nextWater target is
       const diffMs = dateObj.getTime() - nextWater;
       const diffDays = Math.round(diffMs / MS_PER_DAY);
       if (diffDays > 0 && diffDays % plant.frequency === 0) {
@@ -744,7 +701,6 @@
       }
     }
 
-    // Check past logs in diary
     if (plant.diary) {
       const hasWateringEntry = plant.diary.some(entry => {
         if (entry.type !== 'watering') return false;
@@ -758,6 +714,7 @@
     return null;
   }
 
+  // constroi e renderiza o calendario mensal
   function renderCalendar() {
     const year = calendarDate.getFullYear();
     const month = calendarDate.getMonth();
@@ -814,12 +771,13 @@
     }
   }
 
+  // avanca ou retrocede o mes do calendario
   function navigateMonth(direction) {
     calendarDate.setMonth(calendarDate.getMonth() + direction);
     renderCalendar();
   }
 
-  // ─── Modal Plant Add/Edit ───────────────────────────────────
+  // monta as opcoes do seletor de emojis
   function renderAvatarPicker() {
     avatarPicker.innerHTML = '';
     Object.entries(EMOJI_NAMES).forEach(([emoji, name]) => {
@@ -827,76 +785,30 @@
       btn.type = 'button';
       btn.className = 'avatar-option';
       btn.dataset.avatar = emoji;
-      btn.title = name; // Tooltip name on hover
+      btn.title = name;
       btn.textContent = emoji;
       avatarPicker.appendChild(btn);
     });
   }
 
-  function populateRoomDropdown() {
+  // monta as opcoes do dropdown de cômodo com emojis
+  function populateRoomsDropdown() {
     const defaultRooms = ['Sala', 'Quarto', 'Cozinha', 'Varanda', 'Banheiro', 'Jardim'];
     const customRooms = plants.map(p => p.room).filter(r => !defaultRooms.includes(r));
     const allRooms = [...defaultRooms, ...new Set(customRooms)];
     
-    if (!roomDropdownMenu) return;
-    roomDropdownMenu.innerHTML = '';
-    
-    const icons = {
-      'Sala': '🛋️',
-      'Quarto': '🛏️',
-      'Cozinha': '🍳',
-      'Varanda': '🌅',
-      'Banheiro': '🚿',
-      'Jardim': '🌳'
-    };
-    
-    allRooms.forEach(room => {
-      const item = document.createElement('div');
-      item.className = 'dropdown-item';
-      item.dataset.value = room;
-      const icon = icons[room] || '🏠';
-      item.textContent = `${icon} ${room}`;
-      roomDropdownMenu.appendChild(item);
-    });
-    
-    const itemNew = document.createElement('div');
-    itemNew.className = 'dropdown-item btn-add-custom-room';
-    itemNew.dataset.value = 'new-room';
-    itemNew.textContent = '＋ Adicionar Cômodo...';
-    roomDropdownMenu.appendChild(itemNew);
+    if (!plantRoom) return;
+    plantRoom.innerHTML = allRooms.map(room => {
+      const icon = ROOM_ICONS[room] || '🏠';
+      return `<option value="${escapeHTML(room)}">${icon} ${escapeHTML(room)}</option>`;
+    }).join('');
   }
 
-  function setModalSelectedRoom(roomName) {
-    selectedRoomModal = roomName;
-    if (!roomDropdown) return;
-    
-    const trigger = roomDropdown.querySelector('.dropdown-trigger');
-    const label = trigger.querySelector('.selected-value');
-    
-    const icons = {
-      'Sala': '🛋️',
-      'Quarto': '🛏️',
-      'Cozinha': '🍳',
-      'Varanda': '🌅',
-      'Banheiro': '🚿',
-      'Jardim': '🌳'
-    };
-    const icon = icons[roomName] || '🏠';
-    
-    label.textContent = roomName === 'new-room' ? '＋ Adicionar Cômodo...' : `${icon} ${roomName}`;
-    
-    if (roomDropdownMenu) {
-      roomDropdownMenu.querySelectorAll('.dropdown-item').forEach(el => {
-        el.classList.toggle('active', el.dataset.value === roomName);
-      });
-    }
-  }
-
+  // abre o modal de nova planta ou edicao
   function openModal(plantId = null) {
     editingPlantId = plantId;
-    populateRoomDropdown();
-    if (newRoomWrapper) newRoomWrapper.classList.add('hidden');
     resetForm();
+    populateRoomsDropdown();
 
     if (plantId) {
       const plant = plants.find(p => p.id === plantId);
@@ -908,7 +820,7 @@
 
       plantName.value = plant.name;
       plantSpecies.value = plant.species || '';
-      setModalSelectedRoom(plant.room);
+      plantRoom.value = plant.room;
       plantFrequency.value = plant.frequency;
       freqValue.textContent = `${plant.frequency} dias`;
       plantPetSafe.checked = plant.petToxic || false;
@@ -920,19 +832,21 @@
       modalTitle.textContent = 'Nova Planta';
       $('#btnSaveModal').textContent = '🌱 Salvar Planta';
       deleteSection.classList.add('hidden');
-      setModalSelectedRoom('Sala');
+      plantRoom.value = 'Sala';
     }
 
     plantModal.classList.add('active');
     setTimeout(() => plantName.focus(), 300);
   }
 
+  // fecha o modal do form
   function closeModal() {
     plantModal.classList.remove('active');
     editingPlantId = null;
     resetForm();
   }
 
+  // limpa os inputs do form
   function resetForm() {
     plantForm.reset();
     freqValue.textContent = '7 dias';
@@ -940,28 +854,33 @@
     setActiveSun('medium');
   }
 
+  // marca o emoji ativo no modal
   function setActiveAvatar(emoji) {
     $$('.avatar-option').forEach(o => {
       o.classList.toggle('active', o.dataset.avatar === emoji);
     });
   }
 
+  // pega o emoji que esta ativo
   function getSelectedAvatar() {
     const active = avatarPicker.querySelector('.avatar-option.active');
     return active ? active.dataset.avatar : '🪴';
   }
 
+  // marca o nivel de sol ativo
   function setActiveSun(value) {
     $$('.sun-option').forEach(o => {
       o.classList.toggle('active', o.dataset.sun === value);
     });
   }
 
+  // pega o sol ativo
   function getSelectedSun() {
     const active = sunOptions.querySelector('.sun-option.active');
     return active ? active.dataset.sun : 'medium';
   }
 
+  // cria ou edita os dados da planta
   function savePlant(e) {
     e.preventDefault();
 
@@ -972,16 +891,7 @@
       return;
     }
 
-    let room = selectedRoomModal;
-    if (room === 'new-room') {
-      const customRoomName = newRoomInput.value.trim();
-      if (!customRoomName) {
-        newRoomInput.focus();
-        showToast('Digite o nome do novo ambiente! 🏠', 'info');
-        return;
-      }
-      room = customRoomName;
-    }
+    const room = plantRoom.value.trim() || 'Sala';
 
     if (editingPlantId) {
       const plant = plants.find(p => p.id === editingPlantId);
@@ -1022,6 +932,7 @@
     renderAll();
   }
 
+  // deleta a planta definitivamente
   function deletePlant() {
     if (!editingPlantId) return;
     const plant = plants.find(p => p.id === editingPlantId);
@@ -1037,7 +948,7 @@
     showToast(`${plant.name} foi removida do jardim.`, 'info');
   }
 
-  // ─── Detail Drawer ────────────────────────────────────────
+  // abre a gaveta de detalhes lateral
   function openDrawer(id) {
     const plant = plants.find(p => p.id === id);
     if (!plant) return;
@@ -1072,36 +983,35 @@
     detailDrawer.classList.add('active');
   }
 
+  // fecha a gaveta de detalhes
   function closeDrawer() {
     detailDrawer.classList.remove('active');
     viewingPlantId = null;
   }
 
+  // lista todas as notas do diario da planta
   function renderDiary(plant) {
-    const items = diaryTimeline.querySelectorAll('.diary-item');
-    items.forEach(i => i.remove());
+    diaryTimeline.innerHTML = '';
 
     if (!plant.diary || plant.diary.length === 0) {
-      diaryEmpty.classList.remove('hidden');
+      diaryTimeline.innerHTML = '<div class="diary-empty">Nenhuma anotação ainda. Comece a escrever!</div>';
       return;
     }
 
-    diaryEmpty.classList.add('hidden');
     const sorted = [...plant.diary].sort((a, b) => b.date - a.date);
 
     sorted.forEach(entry => {
+      const isWatering = entry.type === 'watering';
       const item = document.createElement('div');
-      item.className = `diary-item${entry.type === 'watering' ? ' watering-log' : ''}`;
-
-      const tagClass = entry.type === 'watering' ? 'watering' : 'note';
-      const tagIcon = entry.type === 'watering' ? '💧' : '📝';
-      const tagText = entry.type === 'watering' ? 'Rega' : 'Nota';
+      item.className = `diary-item${isWatering ? ' watering-log' : ''}`;
 
       item.innerHTML = `
         <div class="diary-item-content">
           <div class="diary-item-date">${formatDate(entry.date)}</div>
           <div class="diary-item-text">${escapeHTML(entry.text)}</div>
-          <span class="diary-item-tag ${tagClass}">${tagIcon} ${tagText}</span>
+          <span class="diary-item-tag ${isWatering ? 'watering' : 'note'}">
+            ${isWatering ? '💧 Rega' : '📝 Nota'}
+          </span>
         </div>
         <button class="btn-delete-diary" data-date="${entry.date}" title="Excluir anotação">🗑️</button>
       `;
@@ -1110,6 +1020,7 @@
     });
   }
 
+  // deleta um item do diario
   function deleteDiaryEntry(date) {
     if (!viewingPlantId) return;
     const plant = plants.find(p => p.id === viewingPlantId);
@@ -1124,6 +1035,7 @@
     renderAll();
   }
 
+  // insere uma nova nota no diario
   function addDiaryEntry() {
     if (!viewingPlantId) return;
     const text = diaryInput.value.trim();
@@ -1147,7 +1059,7 @@
     showToast('Anotação adicionada ao diário! 📝');
   }
 
-  // ─── Render All ────────────────────────────────────────────
+  // atualiza todas as telas
   function renderAll() {
     renderStats();
     renderFilters();
@@ -1158,6 +1070,7 @@
     }
   }
 
+  // muda de tela ativa
   function switchView(view) {
     currentView = view;
     $$('.view-btn').forEach(btn => {
@@ -1175,119 +1088,41 @@
     }
   }
 
-  // ─── Event Listeners ──────────────────────────────────────
+  // liga todas as escutas do app
   function initEvents() {
-    // Theme Header Action
     btnThemeToggle.addEventListener('click', toggleTheme);
 
-    // Backup & Restore Footer Actions
     $('#btnExportBackup').addEventListener('click', exportBackup);
     importFileInput.addEventListener('change', importBackup);
 
-    // View Switcher Buttons
     $('#viewSwitcher').addEventListener('click', (e) => {
       const btn = e.target.closest('.view-btn');
       if (!btn) return;
       switchView(btn.dataset.view);
     });
 
-    // Calendar Navigation
     $('#btnPrevMonth').addEventListener('click', () => navigateMonth(-1));
     $('#btnNextMonth').addEventListener('click', () => navigateMonth(1));
 
-    // Add Plant Buttons
-    $('#btnAddPlant').addEventListener('click', () => openModal());
-    $('#btnAddPlantEmpty').addEventListener('click', () => openModal());
+    $$('#btnAddPlant, #btnAddPlantEmpty').forEach(b => b.addEventListener('click', () => openModal()));
 
-    // Modal Add/Edit Close
-    $('#modalClose').addEventListener('click', closeModal);
-    $('#btnCancelModal').addEventListener('click', closeModal);
+    $$('#modalClose, #btnCancelModal').forEach(b => b.addEventListener('click', closeModal));
     plantModal.addEventListener('click', (e) => {
       if (e.target === plantModal) closeModal();
     });
 
-    // Form Submits
     plantForm.addEventListener('submit', savePlant);
     $('#btnDeletePlant').addEventListener('click', deletePlant);
 
-    // Frequency Slider dynamic display
     plantFrequency.addEventListener('input', () => {
       freqValue.textContent = `${plantFrequency.value} dias`;
     });
 
-    // Custom Dropdown sorting
-    if (sortDropdown) {
-      const trigger = sortDropdown.querySelector('.dropdown-trigger');
-      const label = trigger.querySelector('.selected-value');
-      
-      trigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        sortDropdown.classList.toggle('open');
-      });
+    sortSelect.addEventListener('change', () => {
+      currentSort = sortSelect.value;
+      renderPlants();
+    });
 
-      sortDropdown.addEventListener('click', (e) => {
-        const item = e.target.closest('.dropdown-item');
-        if (!item) return;
-        
-        const val = item.dataset.value;
-        currentSort = val;
-
-        sortDropdown.querySelectorAll('.dropdown-item').forEach(el => el.classList.remove('active'));
-        item.classList.add('active');
-
-        label.textContent = item.textContent;
-        sortDropdown.classList.remove('open');
-        renderPlants();
-      });
-
-      document.addEventListener('click', () => {
-        sortDropdown.classList.remove('open');
-      });
-    }
-
-    // Custom Dropdown room selection
-    if (roomDropdown) {
-      const trigger = roomDropdown.querySelector('.dropdown-trigger');
-      
-      trigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        roomDropdown.classList.toggle('open');
-      });
-
-      roomDropdown.addEventListener('click', (e) => {
-        const item = e.target.closest('.dropdown-item');
-        if (!item) return;
-        
-        const val = item.dataset.value;
-        if (val === 'new-room') {
-          newRoomWrapper.classList.remove('hidden');
-          newRoomInput.value = '';
-          newRoomInput.focus();
-          setModalSelectedRoom('new-room');
-        } else {
-          newRoomWrapper.classList.add('hidden');
-          setModalSelectedRoom(val);
-        }
-        
-        roomDropdown.classList.remove('open');
-      });
-
-      document.addEventListener('click', () => {
-        roomDropdown.classList.remove('open');
-      });
-    }
-
-    // Diary Templates click
-    if (diaryTemplates) {
-      diaryTemplates.addEventListener('click', (e) => {
-        const btn = e.target.closest('.btn-template');
-        if (!btn) return;
-        diaryInput.value = btn.dataset.text;
-        diaryInput.focus();
-      });
-    }
-
-    // Light options
     sunOptions.addEventListener('click', (e) => {
       const btn = e.target.closest('.sun-option');
       if (!btn) return;
@@ -1295,7 +1130,6 @@
       btn.classList.add('active');
     });
 
-    // Avatar Picker selection click
     avatarPicker.addEventListener('click', (e) => {
       const btn = e.target.closest('.avatar-option');
       if (!btn) return;
@@ -1303,7 +1137,6 @@
       btn.classList.add('active');
     });
 
-    // Filters & Search
     roomFiltersContainer.addEventListener('click', (e) => {
       const btn = e.target.closest('.filter-btn');
       if (!btn) return;
@@ -1318,7 +1151,6 @@
       renderPlants();
     });
 
-    // Watering, Details & Direct Edit delegated click on Grid Cards
     plantsGrid.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-action]');
       if (!btn) return;
@@ -1334,13 +1166,11 @@
       }
     });
 
-    // Drawer closing
     $('#drawerClose').addEventListener('click', closeDrawer);
     detailDrawer.addEventListener('click', (e) => {
       if (e.target === detailDrawer) closeDrawer();
     });
 
-    // Drawer edit & water triggers
     $('#btnEditFromDrawer').addEventListener('click', () => {
       if (viewingPlantId) {
         const idToEdit = viewingPlantId;
@@ -1362,7 +1192,6 @@
       }
     });
 
-    // Diary Form submissions
     $('#btnAddDiary').addEventListener('click', addDiaryEntry);
     diaryInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -1371,7 +1200,6 @@
       }
     });
 
-    // Delete diary entries
     diaryTimeline.addEventListener('click', (e) => {
       const btn = e.target.closest('.btn-delete-diary');
       if (!btn) return;
@@ -1379,7 +1207,6 @@
       deleteDiaryEntry(date);
     });
 
-    // Keyboard ESC closes modals
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if (plantModal.classList.contains('active')) closeModal();
@@ -1388,9 +1215,9 @@
     });
   }
 
-  // ─── Initialization ────────────────────────────────────────
+  // inicializa as coisas no inicio
   function init() {
-    initTheme();
+    setTheme(localStorage.getItem(THEME_KEY) || 'light');
 
     const loaded = loadPlants();
     if (!loaded || plants.length === 0) {
@@ -1401,36 +1228,32 @@
     renderAvatarPicker();
     initEvents();
 
-    // Set default active avatar in picker
     setActiveAvatar('🪴');
     
     renderAll();
 
-    // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
-          .then(reg => console.log('Service Worker registered:', reg.scope))
-          .catch(err => console.warn('Service Worker registration failed:', err));
+          .then(reg => console.log('service worker registrado:', reg.scope))
+          .catch(err => console.warn('falha ao registrar service worker:', err));
       });
     }
 
-    // Set initial app badge
     updateAppBadge();
 
-    // Prompt for notification permission on first user interaction to enable App Badging on iOS
     if ('Notification' in window && Notification.permission === 'default') {
       const requestPerm = () => {
         Notification.requestPermission().then(() => {
           updateAppBadge();
-        }).catch(err => console.warn('Permission request failed:', err));
+        }).catch(err => console.warn('permissao de notificacao rejeitada:', err));
       };
       document.addEventListener('click', requestPerm, { once: true });
     }
 
   }
 
-  // Boot app
+  // roda o app quando o dom carregar
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {

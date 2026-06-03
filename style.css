@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Quicksand:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Cozy Cream (Light Mode) */
+  /* cores do tema claro */
   --bg-primary: #faf7f2;
   --bg-secondary: #f3ede4;
   --bg-card: #ffffffcc;
@@ -47,7 +47,7 @@
   --header-height: 64px;
 }
 
-/* ---------- Dark Mode (Deep Pine) ---------- */
+/* cores do tema escuro */
 [data-theme="dark"] {
   --bg-primary: #111a14;
   --bg-secondary: #182019;
@@ -76,7 +76,7 @@
   --shadow-glow-green: 0 0 25px rgba(112, 155, 120, 0.15);
 }
 
-/* ---------- Global Reset ---------- */
+/* reset geral */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -99,8 +99,8 @@ body {
   overflow-x: hidden;
 }
 
-/* ---------- Scrollbar ---------- */
-/* Barra customizada apenas nos cards do calendário, em tablet/desktop */
+/* barra de rolagem customizada */
+/* barra de rolagem especial do calendario */
 @media (min-width: 768px) {
   .calendar-plant-items::-webkit-scrollbar { 
     width: 6px; 
@@ -117,7 +117,7 @@ body {
   }
 }
 
-/* ---------- Decorative Background ---------- */
+/* fundo decorativo */
 body::before {
   content: '';
   position: fixed;
@@ -146,9 +146,7 @@ body::after {
   z-index: 0;
 }
 
-/* ============================================================
-   HEADER
-   ============================================================ */
+
 .app-header {
   position: sticky;
   top: 0;
@@ -214,7 +212,25 @@ body::after {
   gap: 8px;
 }
 
-/* ---------- Generic Icon Button ---------- */
+/* estilo base dos botoes */
+button,
+.btn-primary,
+.btn-secondary,
+.btn-save,
+.btn-danger,
+.btn-danger-icon,
+.btn-water,
+.btn-icon,
+.btn-card-detail,
+.filter-btn,
+.view-btn {
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+/* botoes de icone genericos */
 .btn-icon {
   width: 40px;
   height: 40px;
@@ -222,12 +238,10 @@ body::after {
   border: 1px solid var(--border-color);
   background: var(--bg-secondary);
   color: var(--text-secondary);
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  transition: all var(--transition-fast);
 }
 
 .btn-icon:hover {
@@ -238,9 +252,7 @@ body::after {
   box-shadow: var(--shadow-md);
 }
 
-/* ============================================================
-   MAIN LAYOUT
-   ============================================================ */
+
 .app-container {
   position: relative;
   z-index: 1;
@@ -268,10 +280,8 @@ body::after {
   display: none;
 }
 
-/* ============================================================
-   DASHBOARD STATS BAR
-   ============================================================ */
-/* ---------- Header Vitality Widget ---------- */
+
+/* widget de vitalidade no cabecalho */
 .header-vitality {
   display: flex;
   align-items: center;
@@ -322,7 +332,7 @@ body::after {
   display: none;
 }
 
-/* ---------- Thirsty Warning Filter Button ---------- */
+/* botao de filtro de sedentas */
 .filter-btn.btn-thirsty {
   border-color: var(--accent-terracotta);
   color: var(--accent-terracotta);
@@ -342,18 +352,21 @@ body::after {
   box-shadow: 0 4px 10px rgba(204, 125, 103, 0.25);
 }
 
-/* ---------- Custom Dropdown Component ---------- */
-.custom-dropdown {
+/* seletor nativo estilizado */
+.select-wrapper {
   position: relative;
-  display: inline-block;
-  font-family: var(--font-body);
-}
-
-.dropdown-trigger {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
+  width: 100%;
+}
+
+.select-wrapper select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 100%;
+  height: 44px;
+  padding: 6px 36px 6px 14px;
   border-radius: 50px;
   border: 1px solid var(--border-color);
   background: var(--bg-card);
@@ -366,183 +379,54 @@ body::after {
   outline: none;
 }
 
-.dropdown-trigger:hover {
+.select-wrapper select:hover {
   border-color: var(--accent-green);
   background: var(--bg-secondary);
 }
 
-.dropdown-arrow {
-  font-size: 0.55rem;
-  color: var(--text-muted);
-  transition: transform var(--transition-fast);
-}
-
-.custom-dropdown.open .dropdown-arrow {
-  transform: rotate(180deg);
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  z-index: 150;
-  background: var(--bg-card-solid);
-  border: 1px solid var(--border-color-strong);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
-  padding: 6px;
-  min-width: 170px;
-  display: none;
-  flex-direction: column;
-  gap: 2px;
-  animation: cardFadeIn 0.25s ease;
-}
-
-.custom-dropdown.open .dropdown-menu {
-  display: flex;
-}
-
-.dropdown-item {
-  padding: 8px 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  white-space: nowrap;
-}
-
-.dropdown-item:hover {
-  background: var(--bg-secondary);
-  color: var(--accent-green);
-}
-
-.dropdown-item.active {
-  background: var(--accent-green);
-  color: #fff;
-}
-
-/* Custom Dropdown inside Toolbar */
-.toolbar-right .custom-dropdown {
-  display: flex;
-  width: 100%;
-}
-
-.toolbar-right .custom-dropdown .dropdown-trigger {
-  width: 100%;
-  height: 44px;
-  justify-content: space-between;
-  border-radius: 50px;
-  padding: 0 14px;
-}
-
-.toolbar-right .custom-dropdown .dropdown-menu {
-  width: 100%;
-  min-width: unset;
-  left: 0;
-  right: 0;
-}
-
-/* Custom Dropdown inside Modal Form */
-.form-group .custom-dropdown {
-  width: 100%;
-  display: block;
-}
-
-.form-group .custom-dropdown .dropdown-trigger {
-  width: 100%;
-  height: 42px;
-  padding: 0 14px;
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-size: 0.9rem;
-  font-weight: 600;
-  justify-content: space-between;
-}
-
-.form-group .custom-dropdown .dropdown-trigger:hover {
-  border-color: var(--accent-green);
-  background: var(--bg-input);
-}
-
-.form-group .custom-dropdown.open .dropdown-trigger {
+.select-wrapper select:focus {
   border-color: var(--accent-green);
   box-shadow: 0 0 0 3px rgba(78, 107, 82, 0.1);
 }
 
-.form-group .custom-dropdown .dropdown-menu {
-  width: 100%;
-  left: 0;
-  right: 0;
-  min-width: unset;
-  box-sizing: border-box;
+.select-wrapper::after {
+  content: "▼";
+  font-size: 0.55rem;
+  color: var(--text-muted);
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
-.form-group .custom-dropdown .dropdown-item {
-  font-size: 0.9rem;
-  padding: 10px 14px;
-}
-
-/* ---------- Custom Room Input ---------- */
-.new-room-wrapper {
-  margin-top: 8px;
-  transition: all var(--transition-normal);
-}
-
-.new-room-wrapper.hidden {
-  display: none;
-}
-
-.new-room-wrapper input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-input);
+.select-wrapper select option {
+  background: var(--bg-card-solid);
   color: var(--text-primary);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-body);
-  font-size: 0.85rem;
-  outline: none;
-  transition: border-color var(--transition-fast);
-}
-
-.new-room-wrapper input:focus {
-  border-color: var(--accent-green);
-}
-
-/* ---------- Diary Notes Quick Templates ---------- */
-.diary-templates {
-  display: flex;
-  gap: 6px;
-  margin: 8px 0;
-  flex-wrap: wrap;
-}
-
-.btn-template {
-  padding: 4px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  font-family: var(--font-body);
-  font-size: 0.72rem;
   font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-fast);
+  text-align: left;
 }
 
-.btn-template:hover {
-  background: var(--accent-sage);
-  color: #fff;
-  border-color: var(--accent-sage);
+/* estilo do select de ordenacao */
+.sort-select-wrapper select {
+  padding-left: 38px;
+  padding-right: 38px;
+  text-align: center;
+  text-align-last: center;
 }
 
-/* ============================================================
-   TOOLBAR – Filters, Search, Add Button
-   ============================================================ */
+.sort-select-wrapper .sort-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+
+
 .toolbar {
   display: flex;
   flex-direction: column;
@@ -576,11 +460,8 @@ body::after {
   border: 1px solid var(--border-color);
   background: var(--bg-card);
   color: var(--text-secondary);
-  cursor: pointer;
-  font-family: var(--font-body);
   font-size: 0.8rem;
   font-weight: 600;
-  transition: all var(--transition-fast);
   white-space: nowrap;
 }
 
@@ -605,7 +486,7 @@ body::after {
   width: 100%;
 }
 
-/* Search */
+/* busca de plantas */
 .search-wrapper {
   position: relative;
   grid-column: 1 / -1;
@@ -642,7 +523,7 @@ body::after {
   pointer-events: none;
 }
 
-/* Primary Button */
+/* botao verde principal */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -653,11 +534,8 @@ body::after {
   color: #fff;
   border: none;
   border-radius: 50px;
-  cursor: pointer;
-  font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 700;
-  transition: all var(--transition-fast);
   white-space: nowrap;
   width: 100%;
   height: 44px;
@@ -673,16 +551,14 @@ body::after {
   transform: translateY(0);
 }
 
-/* ============================================================
-   PLANT CARDS GRID
-   ============================================================ */
+
 .plants-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
   gap: 16px;
 }
 
-/* ---------- Single Plant Card ---------- */
+/* card individual da planta */
 .plant-card {
   background: var(--bg-card);
   backdrop-filter: blur(12px);
@@ -701,7 +577,7 @@ body::after {
   border-color: var(--border-color-strong);
 }
 
-/* Overdue desaturation & shiver animations */
+/* animacao de planta atrasada */
 .plant-card.overdue {
   filter: saturate(0.45) brightness(0.95);
   animation: cardFadeIn 0.45s ease both, shiverPeriodic 8s ease infinite;
@@ -716,7 +592,7 @@ body::after {
   display: flex;
 }
 
-/* Watered animation */
+/* animacao de planta recem-regada */
 .plant-card.just-watered {
   animation: waterPulse 0.7s ease;
 }
@@ -732,7 +608,7 @@ body::after {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-/* Card Image */
+/* imagem de fundo do card */
 .card-image {
   position: relative;
   height: 160px;
@@ -745,7 +621,7 @@ body::after {
 
 
 
-/* Plant avatar placeholder (SVG/emoji button) */
+/* avatar da planta */
 .card-avatar-placeholder {
   background: none;
   border: none;
@@ -779,7 +655,7 @@ body::after {
   80% { transform: translateY(-3px) translateX(1.5px) rotate(1deg); }
 }
 
-/* Badge */
+/* etiquetas do card */
 .card-badge {
   position: absolute;
   top: 10px;
@@ -821,7 +697,7 @@ body::after {
   50% { opacity: 0.6; }
 }
 
-/* Card pet safety icon */
+/* icone de aviso sobre pets no card */
 .card-pet-icon {
   position: absolute;
   bottom: 10px;
@@ -839,7 +715,7 @@ body::after {
 .card-pet-icon.safe { background: rgba(78, 107, 82, 0.75); }
 .card-pet-icon.toxic { background: rgba(200, 70, 50, 0.75); }
 
-/* Card Body */
+/* corpo do card */
 .card-body {
   padding: 16px 18px 14px;
 }
@@ -860,7 +736,7 @@ body::after {
   margin-bottom: 12px;
 }
 
-/* Thirst Bar */
+/* barra de sede da planta */
 .thirst-bar-wrapper {
   margin-bottom: 10px;
 }
@@ -901,24 +777,24 @@ body::after {
   position: relative;
 }
 
-/* Shimmer on fill */
-.thirst-bar-fill::after {
+/* brilho animado na barra de sede */
+.thirst-bar-track::after {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.25) 50%, transparent 100%);
-  animation: shimmer 2s ease-in-out infinite;
+  width: 100px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%);
+  animation: shimmer 3s linear infinite;
 }
 
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(350%); }
 }
 
-/* Water date info */
+/* datas de rega no card */
 .card-water-info {
   display: flex;
   justify-content: space-between;
@@ -934,7 +810,7 @@ body::after {
   gap: 4px;
 }
 
-/* Card Actions */
+/* botoes de acao no card */
 .card-actions {
   display: flex;
   gap: 8px;
@@ -955,7 +831,6 @@ body::after {
   font-family: var(--font-body);
   font-size: 0.8rem;
   font-weight: 700;
-  transition: all var(--transition-fast);
 }
 
 .btn-water:hover {
@@ -975,12 +850,10 @@ body::after {
   border: 1px solid var(--border-color);
   background: var(--bg-secondary);
   color: var(--text-secondary);
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  transition: all var(--transition-fast);
   flex-shrink: 0;
 }
 
@@ -990,9 +863,7 @@ body::after {
   border-color: var(--accent-terracotta);
 }
 
-/* ============================================================
-   EMPTY STATE
-   ============================================================ */
+
 .empty-state {
   text-align: center;
   padding: 60px 20px;
@@ -1017,24 +888,28 @@ body::after {
   margin-bottom: 20px;
 }
 
-/* ============================================================
-   MODAL OVERLAY
-   ============================================================ */
-.modal-overlay {
+
+/* overlays do modal e gaveta lateral */
+.modal-overlay,
+.drawer-overlay {
   position: fixed;
   inset: 0;
   background: var(--bg-modal-overlay);
   backdrop-filter: blur(6px);
   z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--transition-normal);
 }
 
-.modal-overlay.active {
+.modal-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.active,
+.drawer-overlay.active {
   opacity: 1;
   pointer-events: all;
 }
@@ -1063,11 +938,15 @@ body::after {
   padding: 22px 26px 0;
 }
 
-.modal-header h2 {
+.modal-header h2,
+.drawer-header h2 {
   font-family: var(--font-heading);
-  font-size: 1.3rem;
   font-weight: 700;
   color: var(--text-primary);
+}
+
+.modal-header h2 {
+  font-size: 1.3rem;
 }
 
 .modal-close {
@@ -1094,7 +973,7 @@ body::after {
   padding: 20px 26px 26px;
 }
 
-/* ---------- Form Elements ---------- */
+/* campos de inputs de formulario */
 .form-group {
   margin-bottom: 18px;
 }
@@ -1140,7 +1019,7 @@ body::after {
   cursor: pointer;
 }
 
-/* Slider (Frequency) */
+/* controle deslizante de dias */
 .slider-group {
   display: flex;
   flex-direction: column;
@@ -1201,7 +1080,7 @@ input[type="range"]::-moz-range-thumb {
   box-shadow: 0 2px 6px rgba(78, 107, 82, 0.3);
 }
 
-/* Sunlight Selector */
+/* botoes de luz solar */
 .sun-options {
   display: flex;
   gap: 8px;
@@ -1218,7 +1097,6 @@ input[type="range"]::-moz-range-thumb {
   font-family: var(--font-body);
   font-size: 0.78rem;
   font-weight: 600;
-  transition: all var(--transition-fast);
 }
 
 .sun-option:hover {
@@ -1232,7 +1110,7 @@ input[type="range"]::-moz-range-thumb {
   border-color: var(--accent-green);
 }
 
-/* Pet safe toggle */
+/* alternador de pet do modal */
 .toggle-row {
   display: flex;
   align-items: center;
@@ -1283,7 +1161,7 @@ input[type="range"]::-moz-range-thumb {
   background: #fff;
 }
 
-/* Avatar Picker */
+/* seletor de emojis no modal */
 .avatar-picker {
   display: flex;
   gap: 10px;
@@ -1317,7 +1195,7 @@ input[type="range"]::-moz-range-thumb {
 
 
 
-/* ---------- Form Buttons ---------- */
+/* botoes do modal */
 .form-actions {
   display: flex;
   gap: 10px;
@@ -1331,8 +1209,6 @@ input[type="range"]::-moz-range-thumb {
   border: 1px solid var(--border-color);
   background: var(--bg-secondary);
   color: var(--text-secondary);
-  cursor: pointer;
-  font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 600;
   transition: all var(--transition-fast);
@@ -1349,11 +1225,8 @@ input[type="range"]::-moz-range-thumb {
   border: none;
   background: var(--accent-green);
   color: #fff;
-  cursor: pointer;
-  font-family: var(--font-body);
   font-size: 0.85rem;
   font-weight: 700;
-  transition: all var(--transition-fast);
 }
 
 .btn-save:hover {
@@ -1367,8 +1240,6 @@ input[type="range"]::-moz-range-thumb {
   border: 1px solid rgba(200, 70, 50, 0.3);
   background: rgba(200, 70, 50, 0.08);
   color: var(--accent-terracotta);
-  cursor: pointer;
-  font-family: var(--font-body);
   font-size: 0.82rem;
   font-weight: 600;
   transition: all var(--transition-fast);
@@ -1381,12 +1252,10 @@ input[type="range"]::-moz-range-thumb {
   border: 1px solid rgba(200, 70, 50, 0.2);
   background: rgba(200, 70, 50, 0.05);
   color: var(--accent-terracotta);
-  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  transition: all var(--transition-fast);
   flex-shrink: 0;
 }
 
@@ -1401,25 +1270,7 @@ input[type="range"]::-moz-range-thumb {
   border-color: var(--accent-terracotta);
 }
 
-/* ============================================================
-   DETAIL DRAWER (Sidebar)
-   ============================================================ */
-.drawer-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--bg-modal-overlay);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--transition-normal);
-}
-
-.drawer-overlay.active {
-  opacity: 1;
-  pointer-events: all;
-}
-
+/* gaveta lateral de detalhes */
 .drawer {
   position: fixed;
   top: 0;
@@ -1452,9 +1303,7 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .drawer-header h2 {
-  font-family: var(--font-heading);
   font-size: 1.2rem;
-  font-weight: 700;
 }
 
 .drawer-body {
@@ -1463,7 +1312,7 @@ input[type="range"]::-moz-range-thumb {
   overflow-y: auto;
 }
 
-/* Detail info rows */
+/* linhas de informações na gaveta */
 .detail-section {
   margin-bottom: 24px;
 }
@@ -1506,7 +1355,7 @@ input[type="range"]::-moz-range-thumb {
   font-style: italic;
 }
 
-/* Diary Section */
+/* secao do diario da planta */
 .diary-entry-form {
   display: flex;
   flex-direction: column;
@@ -1540,7 +1389,7 @@ input[type="range"]::-moz-range-thumb {
   font-size: 0.8rem;
 }
 
-/* Timeline */
+/* linha do tempo do diario */
 .diary-timeline {
   position: relative;
   padding-left: 20px;
@@ -1644,7 +1493,7 @@ input[type="range"]::-moz-range-thumb {
   font-size: 0.85rem;
 }
 
-/* Drawer actions */
+/* botoes na base da gaveta */
 .drawer-footer {
   padding: 16px 24px;
   border-top: 1px solid var(--border-color);
@@ -1653,9 +1502,7 @@ input[type="range"]::-moz-range-thumb {
   flex-shrink: 0;
 }
 
-/* ============================================================
-   WATERING SPLASH ANIMATION
-   ============================================================ */
+
 .water-splash {
   position: absolute;
   top: 50%;
@@ -1679,9 +1526,7 @@ input[type="range"]::-moz-range-thumb {
   100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
 }
 
-/* ============================================================
-   TOAST NOTIFICATIONS
-   ============================================================ */
+
 .toast-container {
   position: fixed;
   bottom: 16px;
@@ -1740,17 +1585,13 @@ input[type="range"]::-moz-range-thumb {
 
 
 
-/* ============================================================
-   UTILITY
-   ============================================================ */
+
 .hidden { display: none !important; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
-/* ============================================================
-   EXPANSION STYLES (View Switcher, Calendar, Settings theme selector, Confetti)
-   ============================================================ */
 
-/* ---------- View Switcher ---------- */
+
+/* botoes para alternar telas */
 .view-switcher {
   display: flex;
   justify-content: center;
@@ -1764,14 +1605,10 @@ input[type="range"]::-moz-range-thumb {
   background: none;
   border: none;
   padding: 8px 24px;
-  font-family: var(--font-body);
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-muted);
-  cursor: pointer;
   border-bottom: 3px solid transparent;
-  transition: all var(--transition-fast);
-  outline: none;
 }
 
 .view-btn:hover {
@@ -1783,7 +1620,7 @@ input[type="range"]::-moz-range-thumb {
   border-bottom-color: var(--accent-green);
 }
 
-/* ---------- Calendar View ---------- */
+/* visualizacao do calendario */
 .calendar-view {
   background: var(--bg-card);
   backdrop-filter: blur(12px);
@@ -1928,7 +1765,7 @@ input[type="range"]::-moz-range-thumb {
   color: var(--accent-warm-yellow);
 }
 
-/* ---------- Leaf Confetti Particle Animation ---------- */
+/* animacao dos confetes de folha */
 .leaf-particle {
   position: fixed;
   pointer-events: none;
@@ -1951,9 +1788,7 @@ input[type="range"]::-moz-range-thumb {
   }
 }
 
-/* ============================================================
-   CLEANUP & REFACTORED CLASSES (Concern Separation)
-   ============================================================ */
+
 .app-footer-bar {
   margin-top: 16px;
   padding-top: 16px;
@@ -2004,9 +1839,7 @@ input[type="range"]::-moz-range-thumb {
   flex: 2;
 }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
+
 @media (min-width: 768px) {
   :root {
     --header-height: 72px;
@@ -2054,20 +1887,13 @@ input[type="range"]::-moz-range-thumb {
     gap: 10px;
   }
 
-  .toolbar-right .custom-dropdown {
+  .sort-select-wrapper {
     width: 200px;
     flex: none;
   }
 
-  .toolbar-right .custom-dropdown .dropdown-trigger {
-    width: 100%;
+  .sort-select-wrapper select {
     height: 38px;
-    justify-content: space-between;
-  }
-
-  .toolbar-right .custom-dropdown .dropdown-menu {
-    width: 100%;
-    min-width: unset;
   }
 
   .search-wrapper {
@@ -2225,7 +2051,7 @@ input[type="range"]::-moz-range-thumb {
   }
 }
 
-/* Evitar scroll na página/container no celular quando o calendário está ativo */
+/* trava rolagem no celular se o calendario estiver aberto */
 @media (max-width: 767px) {
   body:has(#calendarView:not(.hidden)) {
     overflow: hidden;

@@ -13,11 +13,11 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <link rel="apple-touch-icon" href="icons/iconbranco.svg">
+  <link class="apple-touch-icon" href="icons/iconbranco.svg">
 </head>
 <body>
 
-  <!-- ===== HEADER ===== -->
+  <!-- cabeçalho do app -->
   <header class="app-header" id="appHeader">
     <div class="logo">
       <span class="logo-icon"><img src="icons/iconverde.svg" alt="Mossy Garden Logo"></span>
@@ -27,7 +27,7 @@
       </div>
     </div>
     <div class="header-actions">
-      <!-- Vitality Widget -->
+      <!-- medidor de vitalidade geral -->
       <div class="header-vitality" id="headerVitality" title="Vitalidade Geral do Jardim">
         <svg class="vitality-svg" viewBox="0 0 36 36">
           <circle class="track" cx="18" cy="18" r="15.9"></circle>
@@ -42,20 +42,18 @@
     </div>
   </header>
 
-  <!-- ===== MAIN ===== -->
+  <!-- container principal -->
   <main class="app-container">
 
-
-
-    <!-- View Switcher -->
+    <!-- alternador de visualização (estufa ou calendário) -->
     <div class="view-switcher" id="viewSwitcher">
       <button class="view-btn active" data-view="estufa">🖼️ Estufa</button>
       <button class="view-btn" data-view="calendario">📅 Calendário de Rega</button>
     </div>
 
-    <!-- Estufa View Container (Filters & Grid) -->
+    <!-- visualização da estufa -->
     <div id="estufaView">
-      <!-- Toolbar -->
+      <!-- barra de ferramentas com filtros, busca e ordenação -->
       <section class="toolbar">
         <div class="room-filters" id="roomFilters">
           <button class="filter-btn active" data-room="all">Todas</button>
@@ -65,18 +63,14 @@
             <span class="search-icon">🔍</span>
             <input type="text" id="searchInput" placeholder="Buscar planta..." aria-label="Buscar planta">
           </div>
-          <div class="custom-dropdown" id="sortDropdown">
-            <button class="dropdown-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
-              <span class="sort-icon">🔀</span>
-              <span class="selected-value">Mais sedentas</span>
-              <span class="dropdown-arrow">▼</span>
-            </button>
-            <div class="dropdown-menu">
-              <div class="dropdown-item active" data-value="thirst">Mais sedentas</div>
-              <div class="dropdown-item" data-value="name">Nome (A-Z)</div>
-              <div class="dropdown-item" data-value="recent">Mais recentes</div>
-              <div class="dropdown-item" data-value="freq">Frequência de rega</div>
-            </div>
+          <div class="select-wrapper sort-select-wrapper">
+            <span class="sort-icon">🔀</span>
+            <select id="sortSelect" aria-label="Ordenar plantas">
+              <option value="thirst" selected>Mais sedentas</option>
+              <option value="name">Nome (A-Z)</option>
+              <option value="recent">Mais recentes</option>
+              <option value="freq">Frequência de rega</option>
+            </select>
           </div>
           <button class="btn-primary" id="btnAddPlant">
             <span>＋</span> Nova Planta
@@ -84,13 +78,12 @@
         </div>
       </section>
 
-      <!-- Plants Grid -->
+      <!-- grade de plantas -->
       <section class="plants-grid" id="plantsGrid">
-        <!-- Cards rendered by JS -->
       </section>
     </div>
 
-    <!-- Calendar View Container -->
+    <!-- visualização do calendário -->
     <section class="calendar-view hidden" id="calendarView">
       <div class="calendar-header-bar">
         <button class="btn-icon" id="btnPrevMonth">◀</button>
@@ -108,12 +101,11 @@
           <div>Sáb</div>
         </div>
         <div class="calendar-grid" id="calendarGrid">
-          <!-- Rendered by JS -->
         </div>
       </div>
     </section>
 
-    <!-- Empty State -->
+    <!-- aviso de jardim vazio -->
     <div class="empty-state hidden" id="emptyState">
       <div class="empty-state-icon">🌵</div>
       <h3>Seu jardim ainda está vazio</h3>
@@ -123,7 +115,7 @@
       </button>
     </div>
 
-    <!-- Footer with Backup buttons -->
+    <!-- rodapé com botões de backup -->
     <footer class="app-footer-bar">
       <div class="footer-actions">
         <button type="button" class="filter-btn btn-backup" id="btnExportBackup">📤 Exportar Backup</button>
@@ -136,7 +128,7 @@
 
   </main>
 
-  <!-- ===== ADD / EDIT MODAL ===== -->
+  <!-- modal de adicionar/editar planta -->
   <div class="modal-overlay" id="plantModal">
     <div class="modal">
       <div class="modal-header">
@@ -145,44 +137,34 @@
       </div>
       <div class="modal-body">
         <form id="plantForm" autocomplete="off">
-          <!-- Avatar Picker -->
+          <!-- seletor de avatar -->
           <div class="form-group">
             <label>Avatar</label>
             <div class="avatar-picker" id="avatarPicker">
-              <!-- Rendered by JS to easily support title/tooltips on hover -->
             </div>
           </div>
 
-          <!-- Name -->
+          <!-- nome da planta -->
           <div class="form-group">
             <label for="plantName">Nome / Apelido</label>
             <input type="text" id="plantName" placeholder="Ex: Jade, Samambaia da sala...">
           </div>
 
-          <!-- Species -->
+          <!-- espécie da planta -->
           <div class="form-group">
             <label for="plantSpecies">Espécie (opcional)</label>
             <input type="text" id="plantSpecies" placeholder="Ex: Crassula ovata, Monstera deliciosa...">
           </div>
 
-          <!-- Room -->
+          <!-- ambiente da planta -->
           <div class="form-group">
-            <label>Ambiente</label>
-            <div class="custom-dropdown" id="roomDropdown">
-              <button class="dropdown-trigger" type="button" aria-haspopup="listbox" aria-expanded="false">
-                <span class="selected-value">🛋️ Sala</span>
-                <span class="dropdown-arrow">▼</span>
-              </button>
-              <div class="dropdown-menu" id="roomDropdownMenu">
-                <!-- Rendered dynamically by JS -->
-              </div>
-            </div>
-            <div class="new-room-wrapper hidden" id="newRoomWrapper">
-              <input type="text" id="newRoomInput" placeholder="Nome do novo cômodo...">
+            <label for="plantRoom">Ambiente</label>
+            <div class="select-wrapper">
+              <select id="plantRoom" aria-label="Ambiente da planta"></select>
             </div>
           </div>
 
-          <!-- Watering Frequency Slider -->
+          <!-- frequência de rega -->
           <div class="form-group">
             <label>Frequência de Rega</label>
             <div class="slider-group">
@@ -194,7 +176,7 @@
             </div>
           </div>
 
-          <!-- Sunlight -->
+          <!-- necessidade de sol -->
           <div class="form-group">
             <label>Necessidade de Luz</label>
             <div class="sun-options" id="sunOptions">
@@ -205,7 +187,7 @@
             </div>
           </div>
 
-          <!-- Pet Safety switch (Toxic toggle) -->
+          <!-- toxicidade para pets -->
           <div class="form-group">
             <div class="toggle-row">
               <label class="label-no-margin">🐾 Tóxica para pets?</label>
@@ -216,19 +198,19 @@
             </div>
           </div>
 
-          <!-- Notes -->
+          <!-- anotações gerais -->
           <div class="form-group">
             <label for="plantNotes">Anotações</label>
             <textarea id="plantNotes" placeholder="Observações sobre a planta, cuidados especiais..."></textarea>
           </div>
 
-          <!-- Actions -->
+          <!-- botões de salvar/cancelar -->
           <div class="form-actions">
             <button type="button" class="btn-secondary" id="btnCancelModal">Cancelar</button>
             <button type="submit" class="btn-save" id="btnSaveModal">🌱 Salvar Planta</button>
           </div>
 
-          <!-- Delete (Edit mode only) -->
+          <!-- botão de remoção (modo edição) -->
           <div class="form-group hidden" id="deleteSection">
             <button type="button" class="btn-danger" id="btnDeletePlant">🗑️ Remover Planta</button>
           </div>
@@ -237,7 +219,7 @@
     </div>
   </div>
 
-  <!-- ===== DETAIL DRAWER ===== -->
+  <!-- gaveta de detalhes da planta -->
   <div class="drawer-overlay" id="detailDrawer">
     <div class="drawer">
       <div class="drawer-header">
@@ -246,12 +228,12 @@
       </div>
 
       <div class="drawer-body">
-        <!-- Plant image / avatar -->
+        <!-- avatar grande da planta -->
         <div class="drawer-avatar-container">
           <div id="drawerAvatar">🪴</div>
         </div>
 
-        <!-- Info -->
+        <!-- informações detalhadas -->
         <div class="detail-section">
           <h3>📋 Informações</h3>
           <div class="detail-row"><span class="label">Espécie</span><span class="value" id="drawerSpecies">—</span></div>
@@ -263,30 +245,25 @@
           <div class="detail-row"><span class="label">Próxima rega</span><span class="value" id="drawerNextWater">—</span></div>
         </div>
 
-        <!-- Notes -->
+        <!-- campo de observações -->
         <div class="detail-section" id="drawerNotesSection">
           <h3>📝 Anotações</h3>
           <div class="detail-notes" id="drawerNotes">Sem anotações.</div>
         </div>
 
-        <!-- Diary -->
+        <!-- diário e linha do tempo -->
         <div class="detail-section">
           <h3>📔 Diário</h3>
           <div class="diary-entry-form">
             <textarea id="diaryInput" placeholder="Nova anotação no diário..."></textarea>
-            <div class="diary-templates" id="diaryTemplates">
-              <button type="button" class="btn-template" data-text="🌱 Nova folhagem!">🌱 Broto</button>
-              <button type="button" class="btn-template" data-text="✂️ Poda realizada">✂️ Poda</button>
-              <button type="button" class="btn-template" data-text="🏺 Reenvasada">🏺 Vaso</button>
-            </div>
             <button type="button" class="btn-primary" id="btnAddDiary">📝 Adicionar</button>
           </div>
           <div class="diary-timeline" id="diaryTimeline">
-            <div class="diary-empty" id="diaryEmpty">Nenhuma anotação ainda. Comece a escrever!</div>
           </div>
         </div>
       </div>
 
+      <!-- botões de ação rápidos da gaveta -->
       <div class="drawer-footer">
         <button type="button" class="btn-danger-icon" id="btnDeleteFromDrawer" title="Remover planta">🗑️</button>
         <button class="btn-secondary" id="btnEditFromDrawer">✏️ Editar</button>
@@ -295,7 +272,7 @@
     </div>
   </div>
 
-  <!-- ===== TOAST CONTAINER ===== -->
+  <!-- container de avisos flutuantes -->
   <div class="toast-container" id="toastContainer"></div>
 
   <script src="app.js"></script>

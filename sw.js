@@ -9,7 +9,7 @@ const ASSETS = [
   './icons/iconverde.svg'
 ];
 
-// Install Event - cache core assets
+// instala o service worker e guarda os arquivos no cache
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -18,7 +18,7 @@ self.addEventListener('install', (e) => {
   );
 });
 
-// Activate Event - clean old caches
+// ativa o service worker e limpa caches antigos
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
@@ -33,18 +33,18 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// Fetch Event - network first, fallback to cache
+// busca os arquivos pela rede primeiro e cai no cache se falhar
 self.addEventListener('fetch', (e) => {
   e.respondWith(
     fetch(e.request).then((res) => {
-      // Clone response and cache it dynamically
+      // clona a resposta para salvar no cache dinamicamente
       const resClone = res.clone();
       caches.open(CACHE_NAME).then((cache) => {
         cache.put(e.request, resClone);
       });
       return res;
     }).catch(() => {
-      // Fallback to cache if network is unavailable
+      // se a rede falhar pega a resposta do cache
       return caches.match(e.request);
     })
   );
