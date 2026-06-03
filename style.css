@@ -2237,7 +2237,7 @@ input[type="range"]::-moz-range-thumb {
     min-height: auto;
     height: calc(100vh - var(--header-height));
     height: calc(100dvh - var(--header-height));
-    padding-top: 8px;
+    padding-top: 16px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
