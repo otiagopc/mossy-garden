@@ -546,7 +546,7 @@
       card.style.animationDelay = `${index * 0.05}s`;
       card.dataset.id = plant.id;
 
-      let imageHTML = `<button type="button" class="card-avatar-placeholder" data-action="edit" data-id="${plant.id}" title="Editar ${escapeHTML(plant.name)}">${plant.avatar}</button>`;
+      let imageHTML = `<button type="button" class="card-avatar-placeholder" data-action="detail" data-id="${plant.id}" title="Ver diário de ${escapeHTML(plant.name)}">${plant.avatar}</button>`;
 
       const thirstText = hydration >= 80 ? 'Hidratada' :
                           hydration >= 50 ? 'Confortável' :
@@ -587,8 +587,8 @@
             <button class="btn-water" data-action="water" data-id="${plant.id}">
               💧 Reguei!
             </button>
-            <button class="btn-card-detail" data-action="detail" data-id="${plant.id}" title="Detalhes">
-              📖
+            <button class="btn-card-detail" data-action="edit" data-id="${plant.id}" title="Editar planta">
+              ✏️
             </button>
           </div>
         </div>

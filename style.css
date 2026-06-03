@@ -49,6 +49,7 @@
 
 /* cores do tema escuro */
 [data-theme="dark"] {
+  background: #111a14;
   --bg-primary: #111a14;
   --bg-secondary: #182019;
   --bg-card: rgba(32, 46, 35, 0.7);
@@ -87,7 +88,8 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--bg-primary);
+  background: #faf7f2;
+  transition: background var(--transition-normal);
 }
 
 body {
