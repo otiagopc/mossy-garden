@@ -237,8 +237,8 @@
   // ve se duas datas sao do mesmo dia
   function isSameDay(d1, d2) {
     return d1.getFullYear() === d2.getFullYear() &&
-           d1.getMonth() === d2.getMonth() &&
-           d1.getDate() === d2.getDate();
+      d1.getMonth() === d2.getMonth() &&
+      d1.getDate() === d2.getDate();
   }
 
   // muda o icone do app com o numero de plantas com sede
@@ -294,7 +294,7 @@
   function showToast(message, type = 'success', undoPlantId = null) {
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    
+
     let content = `<span>${type === 'success' ? '✅' : 'ℹ️'}</span><span>${message}</span>`;
     if (undoPlantId) {
       content += `<button class="toast-undo-btn" id="btnUndoWater">Desfazer</button>`;
@@ -358,7 +358,7 @@
       const leaf = document.createElement('div');
       leaf.className = 'leaf-particle';
       leaf.textContent = particles[Math.floor(Math.random() * particles.length)];
-      
+
       const angle = Math.random() * Math.PI * 2;
       const distance = 60 + Math.random() * 160;
       const dx = Math.cos(angle) * distance;
@@ -432,7 +432,7 @@
   // mostra a vitalidade media do jardim
   function renderStats() {
     const total = plants.length;
-    const avgHydration = total > 0 
+    const avgHydration = total > 0
       ? Math.round(plants.reduce((sum, p) => sum + getHydration(p), 0) / total)
       : 0;
 
@@ -549,9 +549,9 @@
       let imageHTML = `<button type="button" class="card-avatar-placeholder" data-action="detail" data-id="${plant.id}" title="Ver diário de ${escapeHTML(plant.name)}">${plant.avatar}</button>`;
 
       const thirstText = hydration >= 80 ? 'Hidratada' :
-                          hydration >= 50 ? 'Confortável' :
-                          hydration >= 20 ? 'Secando...' :
-                          hydration > 0  ? 'Com sede!' : 'Precisa de água!';
+        hydration >= 50 ? 'Confortável' :
+          hydration >= 20 ? 'Secando...' :
+            hydration > 0 ? 'Com sede!' : 'Precisa de água!';
 
       card.innerHTML = `
         <div class="card-image">
@@ -737,12 +737,12 @@
     for (let day = 1; day <= totalDays; day++) {
       const cellDate = new Date(year, month, day);
       const isToday = today.getFullYear() === year &&
-                      today.getMonth() === month &&
-                      today.getDate() === day;
+        today.getMonth() === month &&
+        today.getDate() === day;
 
       const dayCell = document.createElement('div');
       dayCell.className = `calendar-day${isToday ? ' today' : ''}`;
-      
+
       const numSpan = document.createElement('span');
       numSpan.className = 'calendar-day-num';
       numSpan.textContent = day;
@@ -757,7 +757,7 @@
           const badge = document.createElement('div');
           badge.className = `calendar-plant-badge ${schedule.type}`;
           badge.textContent = schedule.label;
-          
+
           badge.addEventListener('click', (e) => {
             e.stopPropagation();
             openDrawer(plant.id);
@@ -796,7 +796,7 @@
     const defaultRooms = ['Sala', 'Quarto', 'Cozinha', 'Varanda', 'Banheiro', 'Jardim'];
     const customRooms = plants.map(p => p.room).filter(r => !defaultRooms.includes(r));
     const allRooms = [...defaultRooms, ...new Set(customRooms)];
-    
+
     if (!plantRoom) return;
     plantRoom.innerHTML = allRooms.map(room => {
       const icon = ROOM_ICONS[room] || '🏠';
@@ -967,8 +967,8 @@
 
     const nextWater = getNextWaterDate(plant);
     const overdue = isOverdue(plant);
-    drawerNextWater.textContent = overdue 
-      ? `⚠️ Atrasada! (era ${formatDate(nextWater)})` 
+    drawerNextWater.textContent = overdue
+      ? `⚠️ Atrasada! (era ${formatDate(nextWater)})`
       : `${formatDate(nextWater)} (${daysUntil(nextWater)})`;
     drawerNextWater.style.color = overdue ? 'var(--accent-terracotta)' : '';
 
@@ -1229,7 +1229,7 @@
     initEvents();
 
     setActiveAvatar('🪴');
-    
+
     renderAll();
 
     if ('serviceWorker' in navigator) {
