@@ -36,6 +36,22 @@
         <span class="vitality-text" id="thrivingLabel">0%</span>
         <span class="vitality-desc">Vitalidade</span>
       </div>
+      <div class="cloud-account" id="cloudAccount">
+        <div id="authSignedOut">
+          <button class="btn-google-login" id="btnGoogleLogin" type="button">
+            <span class="google-g">G</span> Entrar com Google
+          </button>
+        </div>
+        <div class="auth-signed-in" id="authSignedIn" hidden>
+          <img class="auth-avatar" id="authAvatar" alt="" hidden>
+          <div class="auth-copy">
+            <span class="auth-name" id="authName">Conta Google</span>
+            <span class="cloud-status" id="cloudStatus">salvo na nuvem</span>
+          </div>
+          <button class="btn-auth-logout" id="btnLogout" type="button" title="Sair da conta">Sair</button>
+        </div>
+        <span class="cloud-status cloud-status-signed-out" id="cloudStatusSignedOut" aria-hidden="true"></span>
+      </div>
       <button class="btn-icon" id="btnThemeToggle" aria-label="Alternar tema" title="Alternar tema">
         🌙
       </button>
@@ -275,6 +291,9 @@
   <!-- container de avisos flutuantes -->
   <div class="toast-container" id="toastContainer"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="cloud.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

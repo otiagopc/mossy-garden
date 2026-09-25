@@ -2200,3 +2200,91 @@ input[type="range"]::-moz-range-thumb {
     min-height: 0;
   }
 }
+/* conta e sincronização em nuvem */
+.cloud-account {
+  display: flex;
+  align-items: center;
+}
+
+.btn-google-login {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 7px 11px;
+  border: 1px solid var(--border-color-strong);
+  border-radius: 999px;
+  background: var(--bg-card-solid);
+  color: var(--text-primary);
+  font: 600 0.78rem var(--font-body);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-google-login:hover { border-color: var(--accent-green); }
+.google-g { font: 700 0.95rem Arial, sans-serif; }
+
+.auth-signed-in {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 4px 5px 4px 7px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--bg-card-solid);
+}
+
+.auth-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.auth-copy {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  max-width: 150px;
+}
+
+.auth-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.cloud-status {
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+.cloud-status[data-state="ok"] { color: var(--accent-green); }
+.cloud-status[data-state="error"] { color: var(--accent-terracotta); }
+
+.btn-auth-logout {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  padding: 6px 8px;
+  font: 600 0.68rem var(--font-body);
+  cursor: pointer;
+}
+.btn-auth-logout:hover { background: var(--bg-secondary); color: var(--text-primary); }
+.cloud-status-signed-out { display: none; }
+
+@media (max-width: 720px) {
+  .btn-google-login { padding: 7px 9px; font-size: 0.7rem; }
+  .auth-copy { display: none; }
+  .btn-auth-logout { padding: 5px; }
+}
+
+@media (max-width: 480px) {
+  .logo-tagline { display: none; }
+  .btn-google-login { max-width: 112px; line-height: 1.05; }
+}

@@ -1,9 +1,11 @@
-const CACHE_NAME = 'mossy-garden-v4';
+const CACHE_NAME = 'mossy-garden-v5';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './app.js',
+  './cloud.js',
+  './supabase-config.js',
   './manifest.json',
   './icons/iconbranco.svg',
   './icons/iconverde.svg'

@@ -258,6 +258,7 @@
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(plants));
       updateAppBadge();
+      if (window.MossyCloud) window.MossyCloud.scheduleSave();
     } catch (e) {
       console.warn('erro ao salvar dados localmente', e);
     }
@@ -283,6 +284,7 @@
     document.documentElement.setAttribute('data-theme', activeTheme);
     localStorage.setItem(THEME_KEY, activeTheme);
     btnThemeToggle.textContent = activeTheme === 'dark' ? '☀️' : '🌙';
+    if (window.MossyCloud) window.MossyCloud.scheduleSave();
   }
 
   // inverte o tema entre claro e escuro
@@ -1231,6 +1233,29 @@
     setActiveAvatar('🪴');
 
     renderAll();
+
+    // Inicializa autenticação e sincronização em nuvem sem tornar a internet obrigatória.
+    if (window.MossyCloud) {
+      window.MossyCloud.init({
+        getPlants: () => plants,
+        setPlants: (remotePlants) => {
+          plants = Array.isArray(remotePlants) ? remotePlants : [];
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(plants));
+          } catch (e) {
+            console.warn('erro ao atualizar cache local com dados da nuvem', e);
+          }
+          renderAll();
+          updateAppBadge();
+        },
+        getSettings: () => ({
+          theme: document.documentElement.getAttribute('data-theme') || 'light'
+        }),
+        setSettings: (settings) => {
+          if (settings && settings.theme) setTheme(settings.theme);
+        }
+      });
+    }
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
