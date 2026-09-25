@@ -21,15 +21,20 @@
 
   function setStatus(text, state = '') {
     const el = document.getElementById('cloudStatus');
+    const elSignedOut = document.getElementById('cloudStatusSignedOut');
     if (el) {
       el.textContent = text;
       el.dataset.state = state;
+    }
+    if (elSignedOut) {
+      elSignedOut.textContent = text;
+      elSignedOut.dataset.state = state;
     }
     if (hooks && hooks.onStatus) hooks.onStatus(text, state);
   }
 
   function renderAccount() {
-    const signedOut = document.getElementById('authSignedOut');
+    const signedOut = document.getElementById('btnGoogleLogin') || document.getElementById('authSignedOut');
     const signedIn = document.getElementById('authSignedIn');
     const avatar = document.getElementById('authAvatar');
     const name = document.getElementById('authName');
@@ -38,12 +43,16 @@
 
     if (!user) {
       signedOut.hidden = false;
+      signedOut.style.display = '';
       signedIn.hidden = true;
+      signedIn.style.display = 'none';
       return;
     }
 
     signedOut.hidden = true;
+    signedOut.style.display = 'none';
     signedIn.hidden = false;
+    signedIn.style.display = '';
     const meta = user.user_metadata || {};
     if (name) name.textContent = meta.full_name || meta.name || user.email || 'Conta Google';
     if (avatar) {
@@ -51,8 +60,10 @@
       if (photo) {
         avatar.src = photo;
         avatar.hidden = false;
+        avatar.style.display = '';
       } else {
         avatar.hidden = true;
+        avatar.style.display = 'none';
       }
     }
   }

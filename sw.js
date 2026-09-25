@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mossy-garden-v5';
+const CACHE_NAME = 'mossy-garden-v9';
 const ASSETS = [
   './',
   './index.html',

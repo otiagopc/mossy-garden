@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-BR" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,7 @@
   <link rel="icon" href="icons/iconverde.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.json">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#4e6b52">
+  <meta name="theme-color" content="#111a14">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -23,7 +23,7 @@
       <span class="logo-icon"><img src="icons/iconverde.svg" alt="Mossy Garden Logo"></span>
       <div>
         <div class="logo-text">Mossy Garden</div>
-        <div class="logo-tagline">seu diário de plantas</div>
+        <div class="logo-tagline">diário de plantas!!!!</div>
       </div>
     </div>
     <div class="header-actions">
@@ -37,11 +37,13 @@
         <span class="vitality-desc">Vitalidade</span>
       </div>
       <div class="cloud-account" id="cloudAccount">
-        <div id="authSignedOut">
-          <button class="btn-google-login" id="btnGoogleLogin" type="button">
-            <span class="google-g">G</span> Entrar com Google
-          </button>
-        </div>
+        <button class="btn-google-login" id="btnGoogleLogin" type="button" title="Entrar com Google para sincronizar seu jardim">
+          <span class="google-g" aria-hidden="true">G</span>
+          <div class="auth-copy">
+            <span class="auth-name">Entrar com Google</span>
+            <span class="cloud-status" id="cloudStatusSignedOut">somente neste dispositivo</span>
+          </div>
+        </button>
         <div class="auth-signed-in" id="authSignedIn" hidden>
           <img class="auth-avatar" id="authAvatar" alt="" hidden>
           <div class="auth-copy">
@@ -50,11 +52,7 @@
           </div>
           <button class="btn-auth-logout" id="btnLogout" type="button" title="Sair da conta">Sair</button>
         </div>
-        <span class="cloud-status cloud-status-signed-out" id="cloudStatusSignedOut" aria-hidden="true"></span>
       </div>
-      <button class="btn-icon" id="btnThemeToggle" aria-label="Alternar tema" title="Alternar tema">
-        🌙
-      </button>
     </div>
   </header>
 

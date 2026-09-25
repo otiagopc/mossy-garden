@@ -168,7 +168,6 @@
   const diaryTimeline = $('#diaryTimeline');
   const diaryInput = $('#diaryInput');
 
-  const btnThemeToggle = $('#btnThemeToggle');
   const toastContainer = $('#toastContainer');
 
   // gera um id aleatorio
@@ -278,18 +277,9 @@
     return false;
   }
 
-  // aplica o tema do app e salva
-  function setTheme(theme) {
-    const activeTheme = (theme === 'light' || theme === 'dark') ? theme : 'light';
-    document.documentElement.setAttribute('data-theme', activeTheme);
-    localStorage.setItem(THEME_KEY, activeTheme);
-    btnThemeToggle.textContent = activeTheme === 'dark' ? '☀️' : '🌙';
-    if (window.MossyCloud) window.MossyCloud.scheduleSave();
-  }
-
-  // inverte o tema entre claro e escuro
-  function toggleTheme() {
-    setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  // garante o tema escuro como padrão único
+  function setTheme() {
+    document.documentElement.setAttribute('data-theme', 'dark');
   }
 
   // cria um aviso na tela com botao de desfazer se precisar
@@ -1092,8 +1082,6 @@
 
   // liga todas as escutas do app
   function initEvents() {
-    btnThemeToggle.addEventListener('click', toggleTheme);
-
     $('#btnExportBackup').addEventListener('click', exportBackup);
     importFileInput.addEventListener('change', importBackup);
 
@@ -1219,7 +1207,7 @@
 
   // inicializa as coisas no inicio
   function init() {
-    setTheme(localStorage.getItem(THEME_KEY) || 'light');
+    setTheme();
 
     const loaded = loadPlants();
     if (!loaded || plants.length === 0) {
@@ -1249,11 +1237,9 @@
           updateAppBadge();
         },
         getSettings: () => ({
-          theme: document.documentElement.getAttribute('data-theme') || 'light'
+          theme: 'dark'
         }),
-        setSettings: (settings) => {
-          if (settings && settings.theme) setTheme(settings.theme);
-        }
+        setSettings: () => {}
       });
     }
 
